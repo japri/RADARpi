@@ -2,6 +2,7 @@
 import math
 from resolution_canvas import pygame
 from map_picker import MapPicker
+from ui_contrast import LEVELS, contrast_level
 from providers import PROVIDERS, provider_id, poll_seconds
 
 
@@ -56,12 +57,13 @@ class SetupUI:
 
     def draw(self):
         self.buttons = []
-        self.screen.fill((3,15,7))
+        self.view.set_contrast(self.feed.cfg)
+        self.screen.fill(self.view.color((3,15,7)))
         if self.keyboard:
             self.draw_keyboard()
             return
         label = self.view.label
-        title = {'menu':'RADAR SETTINGS','wifi':'WI-FI SETUP','location':'RADAR LOCATION','map':'CHOOSE A MAP PIN','data':'AIRCRAFT DATA','units':'DISPLAY UNITS'}[self.page]
+        title = {'menu':'RADAR SETTINGS','wifi':'WI-FI SETUP','location':'RADAR LOCATION','map':'CHOOSE A MAP PIN','data':'AIRCRAFT DATA','units':'DISPLAY / UNITS','contrast':'DISPLAY CONTRAST'}[self.page]
         label(title,12,7,21)
         if self.page == 'menu':
             state = self.network.status
@@ -79,11 +81,20 @@ class SetupUI:
             selected = self.feed.cfg.get('measurement_units','aviation')
             label('Altitude / speed / distance',12,39,12)
             for i,(value,title) in enumerate((('aviation','Aviation: ft / kt / km'),('metric','Metric: m / km/h / km'),('imperial','Imperial: ft / mph / mi'))):
-                self.button(('* ' if selected == value else '')+title,(8,65+i*48,464,41),('units',value))
+                self.button(('* ' if selected == value else '')+title,(8,61+i*44,464,38),('units',value))
             unit = 'Fahrenheit' if self.feed.cfg.get('temperature_unit') == 'fahrenheit' else 'Celsius'
-            self.button('Temperature: '+unit,(8,214,464,41),'temperature')
-            label('Changes save immediately. Range coverage stays the same.',12,261,10,width=455)
+            self.button('Temperature: '+unit,(8,196,464,38),'temperature')
+            self.button('Contrast: '+LEVELS[contrast_level(self.feed.cfg)],(8,240,464,34),'contrast')
             self.button('Back',(8,280,464,32),'menu')
+        elif self.page == 'contrast':
+            label('Radar colors only; saves on this Pi.',12,40,12)
+            selected=contrast_level(self.feed.cfg)
+            for i,name in enumerate(LEVELS):
+                self.button(('* ' if selected==i else '')+name,(8+(i%2)*236,66+(i//2)*46,228,40),('contrast',i))
+            label('LIVE   GIA421   CGK > DPS',18,171,19)
+            label('Altitude 37,575 FT     Speed 400 KT',18,204,12,(83,151,98))
+            label('Higher contrast: darker panels, brighter text.',12,239,11,width=455)
+            self.button('Back',(8,280,464,32),'units')
         elif self.page == 'data':
             source = PROVIDERS[self.data_provider]
             label('Position provider (tap to switch)',12,39,12)
@@ -187,6 +198,10 @@ class SetupUI:
             self.active = False
         elif action in ('menu','wifi','location','data'):
             self.open(action)
+        elif action == 'contrast':
+            self.open('contrast')
+        elif isinstance(action,tuple) and action[0] == 'contrast':
+            self.feed.change(display_contrast=action[1])
         elif action == 'units':
             self.open('units')
         elif isinstance(action,tuple) and action[0] == 'units':

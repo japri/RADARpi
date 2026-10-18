@@ -10,6 +10,7 @@ from coastline import Coastline
 from flag_icons import FlagIcons
 from airline_icons import AirlineIcons
 from split_flap import SplitFlap
+from ui_contrast import contrast_level, contrast_color
 from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
@@ -28,6 +29,7 @@ def polar(angle, radius, centre=CENTRE):
 class RadarView:
     def __init__(self, screen):
         self.screen = screen
+        self.contrast = 0
         self.flags = FlagIcons(screen)
         self.airlines = AirlineIcons(screen)
         self.flaps = SplitFlap()
@@ -55,6 +57,16 @@ class RadarView:
         self.last_received = None
         self.last_centre = None
 
+    def set_contrast(self,cfg):
+        level=contrast_level(cfg)
+        if level != self.contrast:
+            self.contrast=level
+            self.map_key=None
+            self.text_cache.clear()
+
+    def color(self,value):
+        return contrast_color(self.contrast,value)
+
     def label(self, text, x, y, size=12, color=INK, width=None, surface=None):
         target = surface or self.screen
         value = str(text)
@@ -65,6 +77,7 @@ class RadarView:
         target.blit(self.text_surface(value, size, color), (x, y))
 
     def text_surface(self, value, size, color):
+        color = self.color(color)
         # Reuse unchanged labels instead of rasterizing them every animation frame.
         key = (value, size, color)
         if key not in self.text_cache:
@@ -77,16 +90,16 @@ class RadarView:
         base = pygame.Surface(SIZE).convert()
         for y in range(320):
             c = int(4 + 5 * (1 - y / 320))
-            pygame.draw.line(base, (c // 2, c + 4, c // 2), (0, y), (479, y))
+            pygame.draw.line(base, self.color((c // 2, c + 4, c // 2)), (0, y), (479, y))
         # Machined ring, inner shadow, and curved phosphor glass.
-        pygame.draw.circle(base, (0, 3, 0), (160, 163), 158)
+        pygame.draw.circle(base, self.color((0, 3, 0)), (160, 163), 158)
         for radius in range(156, 142, -1):
             shade = int(22 + 39 * math.sin((156 - radius) / 14 * math.pi))
             pygame.draw.circle(base, (shade // 3, shade, shade // 2), CENTRE, radius)
-        pygame.draw.circle(base, (1, 8, 3), CENTRE, 143)
+        pygame.draw.circle(base, self.color((1, 8, 3)), CENTRE, 143)
         for radius in range(142, 0, -1):
             f = 1 - radius / 143
-            pygame.draw.circle(base, (2 + int(f * 2), 17 + int(f * 13), 7 + int(f * 4)), CENTRE, radius)
+            pygame.draw.circle(base, self.color((2 + int(f * 2), 17 + int(f * 13), 7 + int(f * 4))), CENTRE, radius)
         pygame.gfxdraw.aacircle(base, *CENTRE, 156, (60, 115, 63))
         pygame.gfxdraw.aacircle(base, *CENTRE, 143, (10, 50, 22))
         if self.cloud_image is not None:
@@ -102,24 +115,24 @@ class RadarView:
             pygame.gfxdraw.aacircle(base, *CENTRE, int(RADIUS * fraction), (25, 70, 39))
         for degrees in range(0, 360, 30):
             angle = math.radians(degrees)
-            pygame.draw.line(base, (14, 49, 27), CENTRE, polar(angle, RADIUS))
+            pygame.draw.line(base, self.color((14, 49, 27)), CENTRE, polar(angle, RADIUS))
         for degrees in range(0, 360, 5):
             angle = math.radians(degrees)
             major = degrees % 30 == 0
-            pygame.draw.aaline(base, (93, 149, 92) if major else (40, 90, 48), polar(angle, 148 if major else 151), polar(angle, 154))
+            pygame.draw.aaline(base, self.color((93, 149, 92)) if major else (40, 90, 48), polar(angle, 148 if major else 151), polar(angle, 154))
         for name, angle in (('N', 0), ('E', 90), ('S', 180), ('W', 270)):
             x, y = polar(math.radians(angle), 130)
             self.label(name, x - 4, y - 7, 12, (101, 179, 111), surface=base)
         for x, y in ((6, 6), (306, 6), (6, 308), (306, 308)):
-            pygame.draw.circle(base, (0, 5, 1), (x+1, y+1), 4)
-            pygame.draw.circle(base, (41, 67, 39), (x, y), 3)
-            pygame.draw.line(base, (9, 22, 10), (x-2, y), (x+2, y))
+            pygame.draw.circle(base, self.color((0, 5, 1)), (x+1, y+1), 4)
+            pygame.draw.circle(base, self.color((41, 67, 39)), (x, y), 3)
+            pygame.draw.line(base, self.color((9, 22, 10)), (x-2, y), (x+2, y))
         # Thin scan lines give the glass subtle texture.
         for y in range(24, 299, 3):
             dy = y - CENTRE[1]
             dx = int(math.sqrt(max(0, RADIUS**2 - dy**2)))
             if dx:
-                pygame.draw.line(base, (3, 16, 6), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
+                pygame.draw.line(base, self.color((3, 16, 6)), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
         return base
 
     def build_sweep(self):
@@ -151,7 +164,7 @@ class RadarView:
         angle = math.radians(heading)
         silhouette = ((0,-7),(1,-2),(7,2),(7,4),(1,2),(1,6),(3,8),(3,9),(0,7),(-3,9),(-3,8),(-1,6),(-1,2),(-7,4),(-7,2),(-1,-2))
         points = [(x + px*math.cos(angle) - py*math.sin(angle), y + px*math.sin(angle) + py*math.cos(angle)) for px,py in silhouette]
-        pygame.draw.polygon(self.screen, (0, 7, 1), [(px+1, py+2) for px,py in points])
+        pygame.draw.polygon(self.screen, self.color((0, 7, 1)), [(px+1, py+2) for px,py in points])
         color = INK if selected else (65, 210, 97)
         pygame.draw.polygon(self.screen, color, points)
         pygame.draw.aalines(self.screen, color, True, points)
@@ -162,14 +175,15 @@ class RadarView:
                 pygame.draw.line(self.screen, GREEN, corner, (corner[0],corner[1]-dy*5))
 
     def button(self, rect, title, subtitle=None):
-        pygame.draw.rect(self.screen, (0, 4, 1), rect.move(0,2), border_radius=6)
-        pygame.draw.rect(self.screen, (16, 49, 25), rect, border_radius=6)
-        pygame.draw.rect(self.screen, (43, 99, 52), rect, 1, border_radius=6)
-        pygame.draw.line(self.screen, (63, 119, 63), (rect.left+7,rect.top+1),(rect.right-7,rect.top+1))
+        pygame.draw.rect(self.screen, self.color((0, 4, 1)), rect.move(0,2), border_radius=6)
+        pygame.draw.rect(self.screen, self.color((16, 49, 25)), rect, border_radius=6)
+        pygame.draw.rect(self.screen, self.color((43, 99, 52)), rect, 1, border_radius=6)
+        pygame.draw.line(self.screen, self.color((63, 119, 63)), (rect.left+7,rect.top+1),(rect.right-7,rect.top+1))
         label = self.text_surface(title, 12, INK)
         self.screen.blit(label, label.get_rect(center=rect.center))
 
     def draw(self, cfg, rows, current, age, error, note, received, elapsed, display_status=None):
+        self.set_contrast(cfg)
         cloud,cloud_note = self.clouds.snapshot(cfg) if self.clouds else (None,'CLOUDS OFF')
         token = (cloud['key'],cloud['timestamp']) if cloud else None
         if token != self.cloud_token:
@@ -185,7 +199,7 @@ class RadarView:
         self.screen.blit(sweep, sweep.get_rect(center=CENTRE))
         for fraction in (.25,.5,.75):
             self.label(distance(cfg['radius_km']*fraction,cfg,with_unit=False), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, DIM)
-        pygame.draw.circle(self.screen, (58, 157, 76), CENTRE, 5, 1)
+        pygame.draw.circle(self.screen, self.color((58, 157, 76)), CENTRE, 5, 1)
         pygame.draw.circle(self.screen, INK, CENTRE, 2)
 
         # Trails retain reported positions; prediction affects icons only.
@@ -255,15 +269,15 @@ class RadarView:
         balloon = pygame.Rect(324, 87, 148, 141)
         if selected_pos:
             x,y = selected_pos
-            pygame.draw.lines(self.screen, (0,8,2), False, [(x+13,y+2),(309,y+2),(320,126),(326,126)],3)
-            pygame.draw.aalines(self.screen, (58,137,76), False, [(x+13,y),(309,y),(320,124),(325,124)])
+            pygame.draw.lines(self.screen, self.color((0,8,2)), False, [(x+13,y+2),(309,y+2),(320,126),(326,126)],3)
+            pygame.draw.aalines(self.screen, self.color((58,137,76)), False, [(x+13,y),(309,y),(320,124),(325,124)])
             pygame.draw.circle(self.screen, GREEN, (x+13,y), 2)
-        pygame.draw.rect(self.screen, (0,3,0), balloon.move(2,4), border_radius=8)
-        pygame.draw.polygon(self.screen, (42,94,49), [(324,115),(316,123),(324,132)])
-        pygame.draw.rect(self.screen, (17,51,26), balloon, border_radius=8)
-        pygame.draw.rect(self.screen, (55,112,64), balloon, 1, border_radius=8)
-        pygame.draw.line(self.screen, (90,147,92), (332,88),(462,88))
-        pygame.draw.line(self.screen, (8,25,12), (331,225),(465,225))
+        pygame.draw.rect(self.screen, self.color((0,3,0)), balloon.move(2,4), border_radius=8)
+        pygame.draw.polygon(self.screen, self.color((42,94,49)), [(324,115),(316,123),(324,132)])
+        pygame.draw.rect(self.screen, self.color((17,51,26)), balloon, border_radius=8)
+        pygame.draw.rect(self.screen, self.color((55,112,64)), balloon, 1, border_radius=8)
+        pygame.draw.line(self.screen, self.color((90,147,92)), (332,88),(462,88))
+        pygame.draw.line(self.screen, self.color((8,25,12)), (331,225),(465,225))
         if current:
             callsign = (current.get('flight') or current.get('hex') or '?').strip()
             logo = self.airlines.get(current.get('flight'))
@@ -281,7 +295,7 @@ class RadarView:
                 while title and self.fonts[font_size].size(title+'..')[0] > available:
                     title = title[:-1]
                 title += '..'
-            self.flaps.draw(self.screen,self.fonts[font_size],title,334,94+(19-font_size)/2,INK,'callsign',current.get('hex'),width=available)
+            self.flaps.draw(self.screen,self.fonts[font_size],title,334,94+(19-font_size)/2,self.color(INK),'callsign',current.get('hex'),width=available)
             icon_x = 334+self.fonts[font_size].size(title)[0]
             for icon in icons:
                 icon_x += gap
@@ -290,7 +304,7 @@ class RadarView:
             self.label(f'{current.get("t", "?")} {current.get("r", "")}',334,119,10,MUTED,127)
             route = current.get('route_label') or ''
             route = route if ' > ' in route else '---------'
-            self.flaps.draw(self.screen,self.fonts[17],route,334,135,GREEN,'route',current.get('hex'),width=127,clear_on_identity=True)
+            self.flaps.draw(self.screen,self.fonts[17],route,334,135,self.color(GREEN),'route',current.get('hex'),width=127,clear_on_identity=True)
             self.label('REG: '+registration_country(current.get('hex')),334,155,9,MUTED,127)
             altitude_text, altitude_unit = altitude(current.get('alt_baro'),cfg)
             self.label(altitude_text,334,168,19,INK,106)

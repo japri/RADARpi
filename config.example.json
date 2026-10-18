@@ -10,5 +10,6 @@
   "callsign_labels": "selected",
   "cloud_overlay": true,
   "temperature_unit": "celsius",
-  "measurement_units": "aviation"
+  "measurement_units": "aviation",
+  "display_contrast": 0
 }
