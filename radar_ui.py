@@ -6,6 +6,7 @@ from resolution_canvas import pygame
 from providers import provider
 from motion import Motion
 from coastline import Coastline
+from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
 CENTRE = (158, 160)
@@ -28,7 +29,7 @@ class RadarView:
         for size in (9, 10, 11, 12, 13, 14, 17, 19, 21, 25):
             path = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
             self.fonts[size] = pygame.font.Font(path if Path(path).exists() else None, size)
-        self.buttons = {'range': pygame.Rect(324, 240, 148, 33), 'location': pygame.Rect(324, 279, 66, 33), 'next': pygame.Rect(397, 279, 75, 33)}
+        self.buttons = {'range': pygame.Rect(324, 246, 148, 29), 'location': pygame.Rect(324, 279, 66, 33), 'next': pygame.Rect(397, 279, 75, 33)}
         self.buttons['range'].width += self.extra_width
         self.buttons['location'].width += self.extra_width//2
         self.buttons['next'].x += self.extra_width//2
@@ -191,7 +192,7 @@ class RadarView:
         sweep, offset = self.sweep_frames[round(sweep_angle/2.5) % len(self.sweep_frames)]
         self.screen.blit(sweep, (CENTRE[0]+offset[0],CENTRE[1]+offset[1]))
         for fraction in (.25,.5,.75):
-            self.label(str(int(cfg['radius_km']*fraction)), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, DIM)
+            self.label(distance(cfg['radius_km']*fraction,cfg,with_unit=False), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, DIM)
         pygame.draw.circle(self.screen, (58, 157, 76), CENTRE, 5, 1)
         pygame.draw.circle(self.screen, INK, CENTRE, 2)
 
@@ -260,7 +261,7 @@ class RadarView:
         self.label(cloud['source'] if cloud else cloud_note,325,77,9,DIM,147+extra)
 
         # Flight balloon sits clear of the maximised scope; its leader names the target.
-        balloon = pygame.Rect(324, 87, 148+extra, 127)
+        balloon = pygame.Rect(324, 87, 148+extra, 141)
         if selected_pos:
             x,y = selected_pos
             pygame.draw.lines(self.screen, (0,8,2), False, [(x+13,y+2),(309,y+2),(320,126),(326,126)],3)
@@ -271,7 +272,7 @@ class RadarView:
         pygame.draw.rect(self.screen, (17,51,26), balloon, border_radius=8)
         pygame.draw.rect(self.screen, (55,112,64), balloon, 1, border_radius=8)
         pygame.draw.line(self.screen, (90,147,92), (332,88),(462+extra,88))
-        pygame.draw.line(self.screen, (8,25,12), (331,211),(465+extra,211))
+        pygame.draw.line(self.screen, (8,25,12), (331,225),(465+extra,225))
         if current:
             callsign = (current.get('flight') or current.get('hex') or '?').strip()
             self.label(callsign,334,94,19,INK,127+extra)
@@ -279,21 +280,15 @@ class RadarView:
             route = current.get('route_label', 'Route unknown')
             known_route = ' > ' in route
             self.label(route,334,135,17 if known_route else 11,GREEN if known_route else MUTED,127+extra)
-            self.label('DEPARTURE > ARRIVAL',334,155,9,MUTED,127+extra)
-            altitude = current.get('alt_baro')
-            if isinstance(altitude,(int,float)):
-                altitude = f'{altitude:,.0f}'
-            elif altitude == 'ground':
-                altitude = 'GROUND'
-            else:
-                altitude = '--'
-            altitude_width = self.label(altitude,334,168,19,INK,106+extra)
-            if altitude != 'GROUND':
-                self.label('FT',334+altitude_width+6,175,10,MUTED)
-            gs = current.get('gs')
-            speed = f'{gs:.0f}' if isinstance(gs,(int,float)) else '--'
-            self.label(f'{speed} KT',334,193,11,GREEN)
-            self.label(f'{current["distance"]:.0f} KM',414+extra,193,11,GREEN)
+            self.label('REG: '+registration_country(current.get('hex')),334,155,9,MUTED,127+extra)
+            altitude_text, altitude_unit = altitude(current.get('alt_baro'),cfg)
+            self.label(altitude_text,334,168,19,INK,106+extra)
+            if altitude_unit:
+                altitude_width = min(self.fonts[19].size(altitude_text)[0],106+extra)
+                self.label(altitude_unit,334+altitude_width+6,175,10,MUTED)
+            self.label(speed(current.get('gs'),cfg),334,193,10,GREEN,76+extra)
+            self.label(distance(current['distance'],cfg),414+extra,193,10,GREEN,58)
+            self.label(direction(current),334,212,10,MUTED,127+extra)
         else:
             self.label('ACQUIRING' if age is None else 'NO TARGETS',334,106,14,INK)
             self.label('Waiting for' if age is None else 'No recent',334,142,12,MUTED)
@@ -303,8 +298,8 @@ class RadarView:
             detail = 'DATA PAUSED / TEST'
         if self.clouds and cfg.get('cloud_overlay',True):
             detail = cloud_note
-        self.label(detail,325,220,10,MUTED,147+extra)
-        self.button(self.buttons['range'],f'RANGE  {cfg["radius_km"]} KM')
+        self.label(detail,325,232,9,MUTED,147+extra)
+        self.button(self.buttons['range'],'RANGE  '+distance(cfg['radius_km'],cfg))
         self.button(self.buttons['location'],'SETUP')
         self.button(self.buttons['next'],'NEXT >')
         # Tiny attribution occupies an unused outer corner, outside the radar glass.

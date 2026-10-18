@@ -85,9 +85,16 @@ are independent from the main application.
 
 - **RANGE:** change the radius; **NEXT:** select another aircraft.
 - **SETUP:** location, data provider, polling interval, callsign labels, clouds,
-  temperature units and touch calibration. Keyboard shortcuts: **S**, **N**, **Esc**.
-- **FT:** selected aircraft's reported altitude in feet. **KT:** ground speed.
-- **KM:** ground distance from the selected aircraft to your configured radar centre.
+  display units and touch calibration. Keyboard shortcuts: **S**, **N**, **Esc**.
+- **SETUP → Display / units:** Aviation (ft / kt / km), Metric (m / km/h / km),
+  or Imperial (ft / mph / mi). Temperature remains an independent choice.
+  Changes save immediately and do not change feed units or radar coverage.
+- Altitude and ground speed follow your selected units. Distance is the ground
+  distance from the selected aircraft to your configured radar centre.
+- **REG:** registration state inferred offline from the ICAO address allocation;
+  not the aircraft's departure airport. Unknown/unallocated addresses show Unknown.
+- **HDG xxx°T/M:** reported true/magnetic heading. **TRK xxx°:** ground track
+  when no heading is reported. Missing direction is shown as `HDG --`.
 - Weather conditions sit above temperature. Infrared imagery shows its source,
   observation time and age; old imagery is explicitly labelled.
 
@@ -105,6 +112,7 @@ Aircraft motion between reports is estimated and limited to 30 seconds.
 - [NASA GIBS / EUMETSAT imagery notes](CLOUD-SOURCES.txt)
 - [Open-Meteo weather notes](WEATHER-SOURCE.txt)
 - [Natural Earth coastline attribution](COASTLINE-SOURCE.txt)
+- [Offline registration-state data and attribution](COUNTRY-DATA-SOURCE.txt)
 
 Service availability, coverage and usage terms belong to the respective providers.
 This is a hobby display, not an aviation navigation or flight-weather instrument.

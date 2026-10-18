@@ -1,0 +1,19 @@
+Registration state is inferred offline from the aircraft's ICAO 24-bit address
+allocation. This is not the departure airport, operator nationality, or current
+position. Incorrect/spoofed addresses can give an incorrect state; non-ICAO,
+unallocated and special-use addresses display Unknown. No new API requests.
+
+Data: ICAO Annex 10 Volume III, Table 9-1, Amendment 92, transcribed by
+ibosoftnet/icao-aircraft-addresses under CC0-1.0.
+https://github.com/ibosoftnet/icao-aircraft-addresses
+Pinned source commit: 2ac0f294274beddb57212eb7531ff87dfd869de5
+File: Hexadecimal Addresses (Amendment 92).csv
+Retrieved 2026-10-18. Kept as supplied; selected display names shortened in code.
+See COUNTRY-DATA-LICENSE.txt for the data's CC0 dedication.
+
+ICAO describes allocation to the State of Registry/common mark authority:
+https://www.icao.int/sites/default/files/APAC/Meetings/2020/2020%20DAPs%20WG3/4-Information%20Paper/IP04_SGP%20AI.8%20-%20Allocation%20of%2024-bit%20Aircraft%20Address.pdf
+
+Direction labels: HDG xxx degrees T (true heading), HDG xxx degrees M (magnetic
+heading), or TRK xxx degrees (ground track when heading is not provided).
+https://github.com/wiedehopf/readsb/blob/dev/README-json.md

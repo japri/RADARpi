@@ -61,7 +61,7 @@ class SetupUI:
             self.draw_keyboard()
             return
         label = self.view.label
-        title = {'menu':'RADAR SETTINGS','wifi':'WI-FI SETUP','location':'RADAR LOCATION','map':'CHOOSE A MAP PIN','data':'AIRCRAFT DATA'}[self.page]
+        title = {'menu':'RADAR SETTINGS','wifi':'WI-FI SETUP','location':'RADAR LOCATION','map':'CHOOSE A MAP PIN','data':'AIRCRAFT DATA','units':'DISPLAY UNITS'}[self.page]
         label(title,12,7,21)
         if self.page == 'menu':
             state = self.network.status
@@ -74,8 +74,16 @@ class SetupUI:
             self.button('Calibrate touch',(10,208,225,48),'calibrate')
             self.button('Back to radar',(245,208,225,48),'close')
             self.button('Clouds: '+('ON' if self.feed.cfg.get('cloud_overlay',True) else 'OFF'),(10,268,225,38),'clouds')
+            self.button('Display / units',(245,268,225,38),'units')
+        elif self.page == 'units':
+            selected = self.feed.cfg.get('measurement_units','aviation')
+            label('Altitude / speed / distance',12,39,12)
+            for i,(value,title) in enumerate((('aviation','Aviation: ft / kt / km'),('metric','Metric: m / km/h / km'),('imperial','Imperial: ft / mph / mi'))):
+                self.button(('* ' if selected == value else '')+title,(8,65+i*48,464,41),('units',value))
             unit = 'Fahrenheit' if self.feed.cfg.get('temperature_unit') == 'fahrenheit' else 'Celsius'
-            self.button('Temp: '+unit,(245,268,225,38),'temperature')
+            self.button('Temperature: '+unit,(8,214,464,41),'temperature')
+            label('Changes save immediately. Range coverage stays the same.',12,261,10,width=455)
+            self.button('Back',(8,280,464,32),'menu')
         elif self.page == 'data':
             source = PROVIDERS[self.data_provider]
             label('Position provider (tap to switch)',12,39,12)
@@ -179,6 +187,10 @@ class SetupUI:
             self.active = False
         elif action in ('menu','wifi','location','data'):
             self.open(action)
+        elif action == 'units':
+            self.open('units')
+        elif isinstance(action,tuple) and action[0] == 'units':
+            self.feed.change(measurement_units=action[1])
         elif action == 'temperature':
             unit = 'celsius' if self.feed.cfg.get('temperature_unit') == 'fahrenheit' else 'fahrenheit'
             self.feed.change(temperature_unit=unit)
