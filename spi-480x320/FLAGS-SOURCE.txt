@@ -1,0 +1,10 @@
+Flag PNG assets: Flagpedia.net / FlagCDN, based on Wikimedia Commons artwork.
+https://flagpedia.net/download/api
+https://flagcdn.com/w80/{ISO-3166-1-alpha-2-code}.png
+Country code names: https://flagcdn.com/en/codes.json
+Retrieved 2026-10-18; bundled unmodified in flags.zip for offline use.
+Flagpedia permits programmatic downloading for projects; attribution is included
+here and in README.md. Flags represent the inferred registration state from the
+existing ICAO address table, not an airline's nationality or departure location.
+Natural aspect ratio preserved within a small display box; unknown state/missing
+asset shows no flag. No emoji font dependency or extra API requests at runtime.

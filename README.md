@@ -91,6 +91,8 @@ are independent from the main application.
   Changes save immediately and do not change feed units or radar coverage.
 - Altitude and ground speed follow your selected units. Distance is the ground
   distance from the selected aircraft to your configured radar centre.
+- A small flag beside the selected callsign uses the same inferred registration
+  state. Flag assets are bundled offline; unknown states show no flag.
 - **REG:** registration state inferred offline from the ICAO address allocation;
   not the aircraft's departure airport. Unknown/unallocated addresses show Unknown.
 - **HDG xxx°T/M:** reported true/magnetic heading. **TRK xxx°:** ground track
@@ -113,6 +115,7 @@ Aircraft motion between reports is estimated and limited to 30 seconds.
 - [Open-Meteo weather notes](WEATHER-SOURCE.txt)
 - [Natural Earth coastline attribution](COASTLINE-SOURCE.txt)
 - [Offline registration-state data and attribution](COUNTRY-DATA-SOURCE.txt)
+- [Flag images from Flagpedia.net / FlagCDN](FLAGS-SOURCE.txt)
 
 Service availability, coverage and usage terms belong to the respective providers.
 This is a hobby display, not an aviation navigation or flight-weather instrument.

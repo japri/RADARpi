@@ -7,6 +7,7 @@ import pygame.gfxdraw
 from providers import provider
 from motion import Motion
 from coastline import Coastline
+from flag_icons import FlagIcons
 from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
@@ -25,6 +26,7 @@ def polar(angle, radius, centre=CENTRE):
 class RadarView:
     def __init__(self, screen):
         self.screen = screen
+        self.flags = FlagIcons(screen)
         self.fonts = {}
         for size in (9, 10, 11, 12, 13, 14, 17, 19, 21, 25):
             path = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
@@ -260,7 +262,16 @@ class RadarView:
         pygame.draw.line(self.screen, (8,25,12), (331,225),(465,225))
         if current:
             callsign = (current.get('flight') or current.get('hex') or '?').strip()
-            self.label(callsign,334,94,19,INK,127)
+            flag = self.flags.get(current.get('hex'))
+            available = 127 - (flag.get_width()+6 if flag is not None else 0)
+            title = callsign
+            if self.fonts[19].size(title)[0] > available:
+                while title and self.fonts[19].size(title+'..')[0] > available:
+                    title = title[:-1]
+                title += '..'
+            self.label(title,334,94,19,INK)
+            if flag is not None:
+                self.screen.blit(flag,(334+self.fonts[19].size(title)[0]+6,98+(16-flag.get_height())/2))
             self.label(f'{current.get("t", "?")} {current.get("r", "")}',334,119,10,MUTED,127)
             route = current.get('route_label', 'Route unknown')
             known_route = ' > ' in route

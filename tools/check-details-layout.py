@@ -50,5 +50,14 @@ with tempfile.TemporaryDirectory() as tmp, patch('radar.CONFIG',Path(tmp)/'confi
     previous_temperature=feed.cfg.get('temperature_unit','celsius')
     ui.tap(next(rect.center for rect,action in ui.buttons if action=='temperature'))
     assert feed.cfg['temperature_unit']!=previous_temperature
-print('PASS: units save, preserve feed/range; all unit layouts and settings rendered')
+for address in ('8a0001','4d2001','738001','a00001'):
+    flag=view.flags.get(address)
+    assert flag is not None and flag.get_width()<=24 and flag.get_height()<=16
+    assert view.flags.get(address) is flag
+assert view.flags.get('~8a0001') is None
+for title,address in (('LONGCALL12345','4d2001'),('UNKNOWN','~8a0001')):
+    sample=dict(row,flight=title,hex=address)
+    view.draw(feed.cfg,[sample],sample,3,'','',100,2.8)
+    pg.image.save(pixels(screen),'flag-'+title+'.png')
+print('PASS: units/layouts; flags fit, cache, truncate long callsigns, and omit unknowns')
 pg.quit()
