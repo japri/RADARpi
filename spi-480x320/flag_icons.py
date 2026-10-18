@@ -19,21 +19,22 @@ class FlagIcons:
         except (OSError, ValueError, KeyError, zipfile.BadZipFile):
             self.archive, self.codes = b'', {}
 
-    def get(self, hex_id):
+    def get(self, hex_id, box=(24,16)):
         code = self.codes.get(registration_country(hex_id))
         if not code:
             return None
-        if code not in self.cache:
+        key = (code,box)
+        if key not in self.cache:
             try:
                 with zipfile.ZipFile(io.BytesIO(self.archive)) as z:
                     source = pygame.image.load(io.BytesIO(z.read(code+'.png'))).convert_alpha()
-                ratio = min(24*self.density/source.get_width(),16*self.density/source.get_height())
+                ratio = min(box[0]*self.density/source.get_width(),box[1]*self.density/source.get_height())
                 size = tuple(max(1,round(v*ratio)) for v in source.get_size())
                 result = pygame.transform.smoothscale(source,size)
                 if self.canvas:
                     from resolution_canvas import Canvas
                     result = Canvas(tuple(v/self.density for v in size),density=self.density,source=result)
-                self.cache[code] = result
+                self.cache[key] = result
             except (OSError, ValueError, KeyError, zipfile.BadZipFile, pygame.error):
-                self.cache[code] = None
-        return self.cache[code]
+                self.cache[key] = None
+        return self.cache[key]

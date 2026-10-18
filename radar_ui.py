@@ -7,6 +7,7 @@ from providers import provider
 from motion import Motion
 from coastline import Coastline
 from flag_icons import FlagIcons
+from airline_icons import AirlineIcons
 from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
@@ -26,9 +27,10 @@ class RadarView:
     def __init__(self, screen):
         self.screen = screen
         self.flags = FlagIcons(screen)
+        self.airlines = AirlineIcons(screen)
         self.extra_width = max(0, screen.get_width()-480)
         self.fonts = {}
-        for size in (9, 10, 11, 12, 13, 14, 17, 19, 21, 25):
+        for size in (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 25):
             path = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
             self.fonts[size] = pygame.font.Font(path if Path(path).exists() else None, size)
         self.buttons = {'range': pygame.Rect(324, 246, 148, 29), 'location': pygame.Rect(324, 279, 66, 33), 'next': pygame.Rect(397, 279, 75, 33)}
@@ -277,16 +279,27 @@ class RadarView:
         pygame.draw.line(self.screen, (8,25,12), (331,225),(465+extra,225))
         if current:
             callsign = (current.get('flight') or current.get('hex') or '?').strip()
-            flag = self.flags.get(current.get('hex'))
-            available = 127+extra - (flag.get_width()+6 if flag is not None else 0)
+            logo = self.airlines.get(current.get('flight'))
+            compact = self.screen.get_width()<=480 and logo is not None
+            flag = self.flags.get(current.get('hex'),(18,12) if compact else (24,16))
+            icons = [icon for icon in (flag,logo) if icon is not None]
+            gap = 4 if compact else 6
+            available = 127+extra - sum(icon.get_width()+gap for icon in icons)
+            font_size = 19
+            if compact:
+                while font_size>15 and self.fonts[font_size].size(callsign)[0]>available:
+                    font_size -= 1
             title = callsign
-            if self.fonts[19].size(title)[0] > available:
-                while title and self.fonts[19].size(title+'..')[0] > available:
+            if self.fonts[font_size].size(title)[0] > available:
+                while title and self.fonts[font_size].size(title+'..')[0] > available:
                     title = title[:-1]
                 title += '..'
-            self.label(title,334,94,19,INK)
-            if flag is not None:
-                self.screen.blit(flag,(334+self.fonts[19].size(title)[0]+6,98+(16-flag.get_height())/2))
+            self.label(title,334,94+(19-font_size)/2,font_size,INK)
+            icon_x = 334+self.fonts[font_size].size(title)[0]
+            for icon in icons:
+                icon_x += gap
+                self.screen.blit(icon,(icon_x,97+(18-icon.get_height())/2))
+                icon_x += icon.get_width()
             self.label(f'{current.get("t", "?")} {current.get("r", "")}',334,119,10,MUTED,127+extra)
             route = current.get('route_label', 'Route unknown')
             known_route = ' > ' in route

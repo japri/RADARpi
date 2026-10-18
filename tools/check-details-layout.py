@@ -59,5 +59,18 @@ for title,address in (('LONGCALL12345','4d2001'),('UNKNOWN','~8a0001')):
     sample=dict(row,flight=title,hex=address)
     view.draw(feed.cfg,[sample],sample,3,'','',100,2.8)
     pg.image.save(pixels(screen),'flag-'+title+'.png')
-print('PASS: units/layouts; flags fit, cache, truncate long callsigns, and omit unknowns')
+from airline_icons import airline_code
+assert airline_code('GIA421')=='GIA'
+for value in ('N12345','PK-ABC','GIA',None,'8a1669'):
+    assert airline_code(value) is None
+    assert view.airlines.get(value) is None
+for callsign in ('GIA421','LNI1391','CTV981','BTK1234','SJV12345'):
+    logo=view.airlines.get(callsign)
+    assert logo is not None and view.airlines.get(callsign) is logo
+    sample=dict(row,flight=callsign)
+    view.draw(feed.cfg,[sample],sample,3,'','',100,2.8)
+    pg.image.save(pixels(screen),'airline-'+callsign+'.png')
+sample=dict(row,flight='',hex='abc123')
+view.draw(feed.cfg,[sample],sample,3,'','',100,2.8)
+print('PASS: both layouts; cached airline logos, long callsigns, registrations, unknowns')
 pg.quit()

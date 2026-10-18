@@ -1,0 +1,15 @@
+Offline airline PNG collection from imgmongelli/airlines-logos-dataset:
+https://github.com/imgmongelli/airlines-logos-dataset
+Pinned commit:7b001fb8d5d0a2f875d57b2b5a8a8056b2fbc63a
+Retrieved 2026-10-18.959 valid PNGs with three-letter ICAO filenames bundled
+unmodified in airline-logos.zip. Upstream README, including its MIT-license
+statement and credits, is retained as SOURCE-README.md in that archive.
+The repository does not include a separate LICENSE file. Airline trademarks
+remain their respective owners' marks; display is for identification, with no
+endorsement implied. Historical/missing logos are possible in community data.
+
+Matching uses a three-letter ICAO callsign prefix followed by a flight number.
+This is an inference, not a verified operator/ownership record or registration
+country. Unknown prefixes, registrations, and missing logos show no badge.
+Assets load locally and are cached; no additional API requests are made.
+Display keeps artwork aspect ratio on a small light background for contrast.
