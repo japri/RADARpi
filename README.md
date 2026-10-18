@@ -4,6 +4,11 @@ A green radar display for Raspberry Pi: live aircraft, callsigns and routes,
 offline coastlines, infrared satellite imagery, and local weather.
 Built with Python and pygame; no browser required.
 
+Callsigns and known routes use a short Solari-style split-flap transition when
+they change. Letters settle within about half a second; unchanged text stays
+still. Both display versions cache glyphs and animate locally, without extra
+network requests.
+
 ## Choose your display version
 
 | Version | Location | Intended display |

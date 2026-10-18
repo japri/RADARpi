@@ -8,6 +8,7 @@ from motion import Motion
 from coastline import Coastline
 from flag_icons import FlagIcons
 from airline_icons import AirlineIcons
+from split_flap import SplitFlap
 from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
@@ -28,6 +29,7 @@ class RadarView:
         self.screen = screen
         self.flags = FlagIcons(screen)
         self.airlines = AirlineIcons(screen)
+        self.flaps = SplitFlap()
         self.extra_width = max(0, screen.get_width()-480)
         self.fonts = {}
         for size in (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 25):
@@ -294,7 +296,7 @@ class RadarView:
                 while title and self.fonts[font_size].size(title+'..')[0] > available:
                     title = title[:-1]
                 title += '..'
-            self.label(title,334,94+(19-font_size)/2,font_size,INK)
+            self.flaps.draw(self.screen,self.fonts[font_size],title,334,94+(19-font_size)/2,INK,'callsign',current.get('hex'),width=available)
             icon_x = 334+self.fonts[font_size].size(title)[0]
             for icon in icons:
                 icon_x += gap
@@ -303,7 +305,11 @@ class RadarView:
             self.label(f'{current.get("t", "?")} {current.get("r", "")}',334,119,10,MUTED,127+extra)
             route = current.get('route_label', 'Route unknown')
             known_route = ' > ' in route
-            self.label(route,334,135,17 if known_route else 11,GREEN if known_route else MUTED,127+extra)
+            if known_route:
+                self.flaps.draw(self.screen,self.fonts[17],route,334,135,GREEN,'route',current.get('hex'),width=127+extra,clear_on_identity=True)
+            else:
+                self.flaps.clear('route')
+                self.label(route,334,135,11,MUTED,127+extra)
             self.label('REG: '+registration_country(current.get('hex')),334,155,9,MUTED,127+extra)
             altitude_text, altitude_unit = altitude(current.get('alt_baro'),cfg)
             self.label(altitude_text,334,168,19,INK,106+extra)
@@ -314,6 +320,7 @@ class RadarView:
             self.label(distance(current['distance'],cfg),414+extra,193,10,GREEN,58)
             self.label(direction(current),334,212,10,MUTED,127+extra)
         else:
+            self.flaps.clear()
             self.label('ACQUIRING' if age is None else 'NO TARGETS',334,106,14,INK)
             self.label('Waiting for' if age is None else 'No recent',334,142,12,MUTED)
             self.label('live positions' if age is None else 'positions here',334,159,12,MUTED)
