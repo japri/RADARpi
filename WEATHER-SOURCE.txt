@@ -1,0 +1,5 @@
+Weather data by Open-Meteo.com
+https://open-meteo.com/
+https://open-meteo.com/en/docs
+Data license: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/
+Personal noncommercial API. Current model weather, rounded Celsius temperature and shortened WMO condition labels. Refresh15min.

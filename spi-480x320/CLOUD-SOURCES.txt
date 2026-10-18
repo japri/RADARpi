@@ -1,0 +1,15 @@
+Infrared satellite imagery overlay
+NASA GIBS / Worldview: Himawari and GOES East/West clean IR band13.
+https://nasa-gibs.github.io/gibs-api-docs/access-basics/
+https://worldview.earthdata.nasa.gov/
+EUMETSAT EUMETView: Meteosat 10.8um at0E and45.5E.
+https://view.eumetsat.int/geoserver/wms
+https://www.eumetsat.int/data-access-services-how-use-new-eumetview
+Sources named on radar. Imagery recoloured green and geographically resampled.
+Qualitative IR brightness, not measured cloud fraction, rain or flight weather.
+Default10minute metadata/image checks, errors retry at10minutes or Retry-After.
+UTC image time from service capabilities, age from observation time, not download.
+Older than90minutes labelled OLD; expires3hours. No polar/limb coverage beyond
+70degrees angular distance from nearest selected satellite. No-coverage explicit.
+Off switch in SETUP. Only selected location cached (cloud-cache.json); changes
+hide old location instantly. On restart cache can show if same pin and under3h.

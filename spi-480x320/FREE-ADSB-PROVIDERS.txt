@@ -1,0 +1,91 @@
+FREE AND CONDITIONAL ADS-B DATA OPTIONS FOR THIS RADAR
+Checked 2026-10-18, Asia/Jakarta. This is a researched shortlist, not a guarantee
+that every small/regional provider is covered. A free web map is not necessarily
+a free public API. Conditions and availability can change.
+
+ENABLED IN SETUP > DATA / REFRESH
+
+1. ADSB.lol - existing provider, no key currently used by this installation.
+   Nearby aircraft endpoint: https://api.adsb.lol/v2/point/LAT/LON/RADIUS_NM
+   Dynamic limits; obey HTTP errors and Retry-After. There is no documented
+   guarantee that every5second poll will succeed. Repository mentions future
+   feeder-linked API keys; do not assume perpetual keyless access.
+   Source: https://github.com/adsblol/api#rate-limits
+   Homepage: https://www.adsb.lol
+
+2. ADSB.fi - verified free public nearby-aircraft endpoint, personal/non-commercial.
+   https://opendata.adsb.fi/api/v3/lat/LAT/lon/LON/dist/RADIUS_NM
+   Up to250NM; public API limit1request/second. Attribution and homepage link
+   required; provided in the radar credit and data-settings page.
+   One real test from this Pi returned HTTP200 and8aircraft around Jakarta.
+   Uses the documented v3 spatial endpoint; older v2 spatial endpoint deprecated.
+   Source: https://github.com/adsbfi/opendata/blob/main/README.md
+   Homepage: https://adsb.fi
+
+DOCUMENTED CANDIDATES THAT DID NOT WORK FROM THIS PI
+
+3. Airplanes.live - community aircraft tracker, documented nearby-aircraft API.
+   https://api.airplanes.live/v2/point/LAT/LON/RADIUS_NM
+   Test from this Pi returned HTTP403 Forbidden. No bypass/repeated attempts made.
+   Not enabled as a working option. This result does not prove global unavailability
+   or that the service is paid; access requirements need clarification first.
+   Sources: https://airplanes.live/api-docs/ and https://airplanes.live/faq/
+
+4. ADS-B One - published keyless-style v2 API,1request/second documented limit.
+   https://api.adsb.one/v2/point/LAT/LON/RADIUS_NM
+   Test from this Pi also returned HTTP403. Not enabled; current access unverified.
+   Sources: https://github.com/adsb-one/api and https://adsb.one/faq
+
+CONDITIONAL OR LIMITED FREE OPTIONS (NOT DROP-IN CHOICES)
+
+5. ADSBHub - free aggregated data exchange for people contributing a real receiver.
+   You must send data from at least one ADS-B station; registered sender IP gains
+   access to a TCP feed. SBS/30003 feed requires a different decoder/ingestion path.
+   Our internet-only radar display does not itself count as an ADS-B receiver.
+   Source: https://www.adsbhub.org/howtogetdata.php
+
+6. OpenSky Network - research/education data access with access limits. Current
+   published terms say operational REST API use in a live product/service or
+   automated system requires a written agreement. Not added as an unrestricted
+   free always-on radar provider. Needs separate access/eligibility review and
+   an adapter for its state-vector schema.
+   Sources: https://opensky-network.org/about/terms-of-use
+   https://openskynetwork.github.io/opensky-api/rest.html
+
+7. AirLabs - free package advertised and flight-position endpoint documented;
+   requires an account/API key. Some fields vary by plan. Current exact free
+   quota was not verified because the pricing page uses dynamic placeholders.
+   Not enabled without a suitable account, quota and field-access check.
+   Sources: https://airlabs.co/ and https://airlabs.co/docs/flights
+
+8. Aviationstack - advertised free personal/non-commercial plan:100requests/month.
+   Useful for evaluation, not this continuously updating display. It is a general
+   aviation API and needs its own adapter/API key rather than our v2 schema.
+   Source: https://aviationstack.com/pricing
+
+9. TheAirTraffic - community tracker advertises unrestricted real-time/historical
+   data and provides receiver-feeding instructions. A current supported public
+   nearby-aircraft API contract and limits were not verified in this review.
+   Not enabled on the strength of a public map alone.
+   Sources: https://theairtraffic.com/ and https://theairtraffic.com/how-to-feed
+
+10. Your own local receiver - readsb/dump1090 can supply local aircraft without a
+    paid data subscription, but requires SDR/antenna hardware and has local radio
+    coverage only. This is a future integration, not an installed data provider.
+
+COMMON CONFUSIONS
+- ADS-B Exchange's current developer page advertises its Community API at$10/month
+  for10,000requests. A free website account is not a free API subscription.
+  Source: https://adsbexchange.com/community/developer-hub/
+- ADSBDB supplies the route/aircraft metadata already used by this radar. It does
+  not replace the live position feed. Source: https://github.com/mrjackwills/adsbdb
+- No automatic provider hopping is used to evade limits. You choose one source,
+  and the app retains each source's retry deadline while it runs.
+
+RECOMMENDED USE ON THIS PI
+Keep ADSB.lol or manually select ADSB.fi. Compare coverage at your actual pin;
+one sample with more aircraft is not a controlled coverage/reliability benchmark.
+Keep the existing8second interval or choose a slower interval when appropriate.
+The UI allows integer5-300seconds, plus response time. Server backoff still wins.
+At8seconds an always-on display can approach10,800requests/day before allowing
+for response time; small monthly free quotas do not suit that workload.

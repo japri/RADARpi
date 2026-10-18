@@ -1,0 +1,41 @@
+DISPLAY SELECTION / NATIVE RENDERING
+
+During installation, after installing the appropriate panel driver, run:
+    python3 display_settings.py
+Choose Auto (recommended), a preset, or enter WIDTHxHEIGHT.
+Saved to display.json in the application folder; applies at next startup.
+For unattended installation:
+    python3 display_settings.py --resolution 800x480
+For a one-run override:
+    python3 radar.py --resolution 1024x600
+
+Common panel examples (verify your panel specifications):
+  3.5-inch: 480x320
+  5-inch:   800x480; some panels are 1024x600
+  7-inch:   800x480, 1024x600, or 1280x800
+Physical inches do not determine pixels. Auto uses the active display mode.
+The installed display driver must support the selected mode. This selector
+does not install drivers, change HDMI timings, or edit boot configuration.
+The original ILI9486 --native-drm backend remains restricted to 480x320.
+
+Text, aircraft, controls, coastlines, and settings draw at native pixel density.
+Cloud/satellite imagery retains the source resolution. The soft sweep is
+resampled once into cropped cached frames, capped at 64 MiB on large panels. Radar geometry keeps its aspect.
+Wide screens gain a wider flight panel. Taller aspects use centred landscape
+content with margins. Portrait-mounted panels can use --rotate-display 90/270.
+Existing --rotate-display 180 enclosure installation is preserved.
+
+Touch: mouse/USB touch is inverse-mapped through the viewport. GPIO resistive
+touch uses centred 480x320 calibration coordinates at every rendering density.
+Changing only rendering density at the same resolution keeps calibration valid.
+After changing physical mode, aspect, or mounting rotation, calibrate in SETUP.
+No calibration file from another device should be copied.
+
+Supported selector bounds: dimensions 320..1920. Tested offline layouts:
+480x320, 800x480, 1024x600, 1024x768, 1280x800, 1920x1080 and rotated panels.
+Only the connected 800x480 HDMI hardware is physically deployed/tested here.
+Large panels cost more rendering time; use --fps 12 if needed on older Pis.
+
+The repository root contains the HDMI/multi-resolution version. The separate
+spi-480x320 directory preserves the original fixed-resolution SPI version.
+Do not copy HDMI launchers or boot settings over a working SPI installation.

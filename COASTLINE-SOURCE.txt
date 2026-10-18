@@ -1,0 +1,5 @@
+Natural Earth 1:10 million coastline, public domain.
+Source: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_coastline.geojson
+Terms: https://www.naturalearthdata.com/about/terms-of-use/
+Downloaded 2026-10-18. Coordinates rounded and thinned for a 480x320 radar.
+Global offline data, not navigation-grade.

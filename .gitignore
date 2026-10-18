@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+config.json
+display.json
+touch.json
+cloud-cache.json
+map-cache/
+*cache*.json
+.diagnostic-*
+diagnostic-*
+*.log
+*.bak
+.env
+.env.*
+backups/

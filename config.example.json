@@ -1,0 +1,13 @@
+{
+  "location_name": "Example location",
+  "latitude": 0.0,
+  "longitude": 0.0,
+  "radius_km": 100,
+  "refresh_seconds": 10,
+  "stale_seconds": 90,
+  "location_mode": "manual",
+  "data_provider": "adsb_fi",
+  "callsign_labels": "selected",
+  "cloud_overlay": true,
+  "temperature_unit": "celsius"
+}
