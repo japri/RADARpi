@@ -49,12 +49,15 @@ class SplitFlap:
     def __init__(self):
         self.fields = {}
         self.tiles = OrderedDict()
+        self.labels = {}
 
     def clear(self, key=None):
         if key is None:
             self.fields.clear()
+            self.labels.clear()
         else:
             self.fields.pop(key,None)
+            self.labels.pop(key,None)
 
     def tile(self, font, char, color, width, height):
         import pygame
@@ -77,51 +80,66 @@ class SplitFlap:
         target = getattr(screen,'pixels',screen)
         native_font = getattr(font,'font',font)
         text = str(text)
-        if width is not None and native_font.size(text)[0] > width*density:
-            while text and native_font.size(text+'..')[0] > width*density:
-                text=text[:-1]
-            text+='..'
+        signature = (native_font,text,color,width,density)
+        cached = self.labels.get(key)
+        if cached is None or cached['signature'] != signature:
+            if width is not None and native_font.size(text)[0] > width*density:
+                while text and native_font.size(text+'..')[0] > width*density:
+                    text=text[:-1]
+                text+='..'
+            edges = [native_font.size(text[:i])[0] for i in range(len(text)+1)]
+            height = native_font.get_height()
+            cached = dict(signature=signature,text=text,edges=edges,
+                          surface=pygame.Surface((max(1,edges[-1]),height)),frame=None)
+            self.labels[key] = cached
+        text = cached['text']
         state = self.fields.setdefault(key,FlipState())
         state.update(text,identity,now,clear_on_identity)
-        height = native_font.get_height()
+        cells = [state.cell(i,now) for i in range(len(text))]
+        # Finished boards become one blit. Active boards retain frame-driven timing.
+        frame = tuple(cells)
+        output = target
+        dest = (round(x*density),round(y*density))
+        if cached['frame'] == frame:
+            output.blit(cached['surface'],dest, (0,0,round(width*density),cached['surface'].get_height()) if width is not None else None)
+            return
+        target = cached['surface']
+        target.fill((7,22,12))
+        height = target.get_height()
         half = height//2
-        px,py = round(x*density),round(y*density)
-        clip = target.get_clip()
-        if width is not None:
-            target.set_clip(clip.clip(pygame.Rect(px,py,round(width*density),height)))
-        try:
-            for index,char in enumerate(text):
-                # Prefix metrics retain the exact label width and icon spacing.
-                left = native_font.size(text[:index])[0]
-                right = native_font.size(text[:index+1])[0]
-                cell_width = max(1,right-left)
-                old,new,phase = state.cell(index,now)
-                new_tile = self.tile(native_font,new,color,cell_width,height)
-                dest = (px+left,py)
-                if phase>=1:
-                    target.blit(new_tile,dest)
+        px=py=0
+        for index,char in enumerate(text):
+            # Prefix metrics retain the exact label width and icon spacing.
+            left = cached['edges'][index]
+            right = cached['edges'][index+1]
+            cell_width = max(1,right-left)
+            old,new,phase = cells[index]
+            new_tile = self.tile(native_font,new,color,cell_width,height)
+            dest = (px+left,py)
+            if phase>=1:
+                target.blit(new_tile,dest)
+            else:
+                old_tile = self.tile(native_font,old,color,cell_width,height)
+                if phase<=0:
+                    target.blit(old_tile,dest)
                 else:
-                    old_tile = self.tile(native_font,old,color,cell_width,height)
-                    if phase<=0:
-                        target.blit(old_tile,dest)
+                    target.blit(new_tile,dest,(0,0,cell_width,half))
+                    target.blit(old_tile,(dest[0],py+half),(0,half,cell_width,height-half))
+                    if phase<.5:
+                        flap = old_tile.subsurface((0,0,cell_width,half))
+                        flap_height = round(half*math.cos(math.pi*phase))
+                        flap_y = py+half-flap_height
                     else:
-                        target.blit(new_tile,dest,(0,0,cell_width,half))
-                        target.blit(old_tile,(dest[0],py+half),(0,half,cell_width,height-half))
-                        if phase<.5:
-                            flap = old_tile.subsurface((0,0,cell_width,half))
-                            flap_height = round(half*math.cos(math.pi*phase))
-                            flap_y = py+half-flap_height
-                        else:
-                            flap = new_tile.subsurface((0,half,cell_width,height-half))
-                            flap_height = round((height-half)*math.sin(math.pi*(phase-.5)))
-                            flap_y = py+half
-                        if flap_height>0:
-                            folded = pygame.transform.smoothscale(flap,(cell_width,flap_height))
-                            shade = round(255*(.55+.45*abs(math.cos(math.pi*phase))))
-                            folded.fill((shade,shade,shade),special_flags=pygame.BLEND_RGB_MULT)
-                            target.blit(folded,(dest[0],flap_y))
-                # Fine hinge and cell boundaries suggest a mechanical board.
-                pygame.draw.line(target,(10,32,17),(px+left,py+half),(px+right-1,py+half))
-                pygame.draw.line(target,(12,32,18),(px+right-1,py),(px+right-1,py+height-1))
-        finally:
-            target.set_clip(clip)
+                        flap = new_tile.subsurface((0,half,cell_width,height-half))
+                        flap_height = round((height-half)*math.sin(math.pi*(phase-.5)))
+                        flap_y = py+half
+                    if flap_height>0:
+                        folded = pygame.transform.smoothscale(flap,(cell_width,flap_height))
+                        shade = round(255*(.55+.45*abs(math.cos(math.pi*phase))))
+                        folded.fill((shade,shade,shade),special_flags=pygame.BLEND_RGB_MULT)
+                        target.blit(folded,(dest[0],flap_y))
+            # Fine hinge and cell boundaries suggest a mechanical board.
+            pygame.draw.line(target,(10,32,17),(px+left,py+half),(px+right-1,py+half))
+            pygame.draw.line(target,(12,32,18),(px+right-1,py),(px+right-1,py+height-1))
+        cached['frame'] = frame
+        output.blit(target,(round(x*density),round(y*density)), (0,0,round(width*density),height) if width is not None else None)

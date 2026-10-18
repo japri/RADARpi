@@ -6,7 +6,8 @@ Built with Python and pygame; no browser required.
 
 Callsigns and known routes use a Solari-style split-flap transition when
 they change. Each changing position cycles through 8–11 flaps and settles within
-about three seconds; unchanged text stays still. Unknown routes display dashes. Both display versions cache glyphs and animate locally, without extra
+about three seconds; unchanged text stays still. Unknown routes display dashes. Both display versions cache glyphs, text measurements and finished boards,
+and animate locally without extra
 network requests.
 
 ## Choose your display version
