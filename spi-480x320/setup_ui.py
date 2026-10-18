@@ -73,9 +73,9 @@ class SetupUI:
             self.button('Data / refresh',(10,151,225,48),'data')
             self.button('Location label',(245,151,225,48),'label')
             self.button('Calibrate touch',(10,208,225,48),'calibrate')
-            self.button('Back to radar',(245,208,225,48),'close')
+            self.button('Display / units',(245,208,225,48),'units')
             self.button('Clouds: '+('ON' if self.feed.cfg.get('cloud_overlay',True) else 'OFF'),(10,268,225,38),'clouds')
-            self.button('Display / units',(245,268,225,38),'units')
+            self.button('Back to radar',(245,268,225,38),'close')
         elif self.page == 'units':
             selected = self.feed.cfg.get('measurement_units','aviation')
             label('Altitude / speed / distance',12,39,12)
