@@ -288,13 +288,9 @@ class RadarView:
                 self.screen.blit(icon,(icon_x,97+(18-icon.get_height())/2))
                 icon_x += icon.get_width()
             self.label(f'{current.get("t", "?")} {current.get("r", "")}',334,119,10,MUTED,127)
-            route = current.get('route_label', 'Route unknown')
-            known_route = ' > ' in route
-            if known_route:
-                self.flaps.draw(self.screen,self.fonts[17],route,334,135,GREEN,'route',current.get('hex'),width=127,clear_on_identity=True)
-            else:
-                self.flaps.clear('route')
-                self.label(route,334,135,11,MUTED,127)
+            route = current.get('route_label') or ''
+            route = route if ' > ' in route else '---------'
+            self.flaps.draw(self.screen,self.fonts[17],route,334,135,GREEN,'route',current.get('hex'),width=127,clear_on_identity=True)
             self.label('REG: '+registration_country(current.get('hex')),334,155,9,MUTED,127)
             altitude_text, altitude_unit = altitude(current.get('alt_baro'),cfg)
             self.label(altitude_text,334,168,19,INK,106)

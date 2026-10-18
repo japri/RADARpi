@@ -1,11 +1,13 @@
-"""Short, frame-driven split-flap transitions; no sleeps, threads or network."""
+"""Mechanical, frame-driven split-flap transitions; no sleeps, threads or network."""
 from collections import OrderedDict
 from dataclasses import dataclass
 import math
 import time
 
-DURATION = .34
-STAGGER = .022
+DURATION = .22  # Seconds per mechanical flap, visible even on the SPI panel.
+STAGGER = .06
+FLAPS = 8
+CHARACTERS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789->"
 
 @dataclass
 class FlipState:
@@ -22,8 +24,26 @@ class FlipState:
     def cell(self, index, now):
         old = self.previous[index] if index < len(self.previous) else ' '
         new = self.target[index]
-        phase = 1 if old == new else max(0,min(1,(now-self.started-min(index,8)*STAGGER)/DURATION))
-        return old,new,phase
+        if old == new:
+            return old,new,1
+        elapsed = now-self.started-min(index,8)*STAGGER
+        steps = FLAPS+index%4
+        if elapsed <= 0:
+            return old,old,0
+        if elapsed >= steps*DURATION:
+            return new,new,1
+        step = int(elapsed/DURATION)
+        phase = (elapsed-step*DURATION)/DURATION
+        end = CHARACTERS.find(new)
+        if end < 0:
+            end = 0
+        def character(position):
+            if position == 0:
+                return old
+            if position == steps:
+                return new
+            return CHARACTERS[(end-steps+position)%len(CHARACTERS)]
+        return character(step),character(step+1),phase
 
 class SplitFlap:
     def __init__(self):
