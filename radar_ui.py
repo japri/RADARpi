@@ -123,8 +123,6 @@ class RadarView:
         for i in range(28):
             pygame.draw.arc(glass, (134, 255, 155, max(0, 14 - i // 2)), (23+i, 23+i, 270-2*i, 270-2*i), .42, 2.9, 1)
         base.blit(glass, (0, 0))
-        for fraction in (.25, .5, .75, 1):
-            pygame.gfxdraw.aacircle(base, *CENTRE, int(RADIUS * fraction), (25, 70, 39))
         for degrees in range(0, 360, 30):
             angle = math.radians(degrees)
             pygame.draw.line(base, self.color((14, 49, 27)), CENTRE, polar(angle, RADIUS))
@@ -147,6 +145,12 @@ class RadarView:
             if dx:
                 pygame.draw.line(scanlines, (0,0,0,64), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
         base.blit(scanlines, (0,0))
+        # Distance rings stay continuous and readable over cloud shading.
+        for fraction in (.25, .5, .75, 1):
+            radius = int(RADIUS * fraction)
+            if self.cloud_image is not None:
+                pygame.draw.circle(base, (0,12,3), CENTRE, radius, 2)
+            pygame.draw.circle(base, self.color((40,110,60)), CENTRE, radius, 1)
         # Keep the shoreline continuous above clouds and decorative scan lines.
         if cfg is not None:
             self.coastline.draw(base,cfg,CENTRE,RADIUS,color=self.color((39,111,66)),outline=bool(self.cloud_image is not None and self.contrast))
@@ -215,7 +219,7 @@ class RadarView:
         sweep, offset = self.sweep_frames[round(sweep_angle/2.5) % len(self.sweep_frames)]
         self.screen.blit(sweep, (CENTRE[0]+offset[0],CENTRE[1]+offset[1]))
         for fraction in (.25,.5,.75):
-            self.label(distance(cfg['radius_km']*fraction,cfg,with_unit=False), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, DIM)
+            self.label(distance(cfg['radius_km']*fraction,cfg,with_unit=False), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, (65,150,85) if self.cloud_image is not None else DIM)
         pygame.draw.circle(self.screen, self.color((58, 157, 76)), CENTRE, 5, 1)
         pygame.draw.circle(self.screen, INK, CENTRE, 2)
 
