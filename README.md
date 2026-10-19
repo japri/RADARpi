@@ -13,7 +13,8 @@ network requests.
 Use **SETUP → Display / units → Contrast** to choose Normal, Medium, High,
 or Maximum with a live preview. The setting saves independently on each Pi.
 This adjusts radar colors, not the LCD backlight; Normal preserves the original
-palette. Cached colors keep full-screen filters out of the animation loop.
+palette. On HDMI panels, higher contrast also strengthens the cloud layer
+while preserving transparent areas. Cached colors keep full-screen filters out of the animation loop.
 
 ## Choose your display version
 

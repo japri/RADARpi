@@ -10,3 +10,12 @@ def contrast_color(level,color):
     # Darken panel fills while lifting text and outlines; preserve alpha.
     factor=1+level*.22 if max(color[:3])>=65 else 1-level*.25
     return tuple(min(255,round(c*factor)) for c in color[:3])+tuple(color[3:])
+
+
+def cloud_contrast(rgba,level):
+    """Lift cloud opacity once per image/contrast change, preserving clear pixels."""
+    if not level:return rgba
+    alpha=bytes(min(200,round(a*(1+level*.8))) for a in range(256))
+    out=bytearray(rgba)
+    out[3::4]=bytes(out[3::4]).translate(alpha)
+    return bytes(out)

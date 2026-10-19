@@ -9,7 +9,7 @@ from coastline import Coastline
 from flag_icons import FlagIcons
 from airline_icons import AirlineIcons
 from split_flap import SplitFlap
-from ui_contrast import contrast_level, contrast_color
+from ui_contrast import contrast_level, contrast_color, cloud_contrast
 from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
@@ -145,7 +145,7 @@ class RadarView:
         for y in range(24, 299, 3):
             dy = y - CENTRE[1]
             dx = int(math.sqrt(max(0, RADIUS**2 - dy**2)))
-            if dx:
+            if dx and not (self.cloud_image is not None and self.contrast):
                 pygame.draw.line(base, self.color((3, 16, 6)), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
         return base
 
@@ -199,9 +199,9 @@ class RadarView:
     def draw(self, cfg, rows, current, age, error, note, received, elapsed, display_status=None):
         self.set_contrast(cfg)
         cloud,cloud_note = self.clouds.snapshot(cfg) if self.clouds else (None,'CLOUDS OFF')
-        token = (cloud['key'],cloud['timestamp']) if cloud else None
+        token = (cloud['key'],cloud['timestamp'],self.contrast) if cloud else None
         if token != self.cloud_token:
-            self.cloud_image = pygame.image.frombytes(cloud['rgba'],(280,280),'RGBA') if cloud else None
+            self.cloud_image = pygame.image.frombytes(cloud_contrast(cloud['rgba'],self.contrast),(280,280),'RGBA') if cloud else None
             self.cloud_token = token
         map_key = (cfg['latitude'],cfg['longitude'],cfg['radius_km'],token)
         if self.map_key != map_key:
