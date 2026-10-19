@@ -31,22 +31,16 @@ row=dict(hex='8a1669',flight='TEST123',distance=32,bearing=1,track=327,gs=400,al
 feed=Feed(cfg);feed.rows=[row];feed.received=100
 sv=copy(view);sv.screen=settings
 ui=SetupUI(settings,sv,feed,NetworkClient(enabled=False),Path('.'))
-with tempfile.TemporaryDirectory() as tmp, patch('radar.CONFIG',Path(tmp)/'config.json'):
-    for mode in ('aviation','metric','imperial'):
-        feed.cfg['measurement_units']=mode
-        ui.open('range');ui.draw()
-        pg.image.save(pixels(settings),'range-'+mode+'.png')
-        for radius in (50,100,200):
-            ui.open('range');ui.draw()
-            before=feed.revision
-            previous=feed.cfg['radius_km']
-            ui.tap(next(rect.center for rect,action in ui.buttons if action==('range',radius)))
-            assert not ui.active and feed.cfg['radius_km']==radius
-            assert feed.revision==before+(previous!=radius)
-            if previous!=radius:
-                assert json.loads((Path(tmp)/'config.json').read_text())['radius_km']==radius
-    ui.open('range');ui.draw();before=feed.revision
-    ui.tap(next(rect.center for rect,action in ui.buttons if action=='close'))
-    assert not ui.active and feed.revision==before
-print('PASS direct range choices, units, persistence, same-range and cancel')
+for mode in ('aviation','metric','imperial'):
+    cfg['measurement_units']=mode
+    for radius in (50,100,200):
+        cfg['radius_km']=radius
+        with patch('split_flap.time.monotonic',return_value=0):view.draw(cfg,[row],row,3,'','',100,2.8)
+        with patch('split_flap.time.monotonic',return_value=4):view.draw(cfg,[row],row,3,'','',100,2.8)
+        rects=[view.buttons[('range',r)] for r in (50,100,200)]
+        for r,rect in zip((50,100,200),rects):
+            assert view.hit(rect.center)==('range',r)
+        assert not any(a.colliderect(b) for i,a in enumerate(rects) for b in rects[i+1:])
+        pg.image.save(pixels(screen),f'range-inline-{mode}-{radius}.png')
+print('PASS inline range hit targets, spacing, all ranges and unit modes')
 pg.quit()

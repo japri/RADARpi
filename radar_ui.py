@@ -42,6 +42,13 @@ class RadarView:
         self.buttons['location'].width += self.extra_width//2
         self.buttons['next'].x += self.extra_width//2
         self.buttons['next'].width += self.extra_width-self.extra_width//2
+        range_area = self.buttons.pop('range')
+        gap=4
+        width=(range_area.width-2*gap)//3
+        for i,radius in enumerate((50,100,200)):
+            left=range_area.left+i*(width+gap)
+            self.buttons[('range',radius)]=pygame.Rect(left,range_area.top,
+                range_area.right-left if i==2 else width,range_area.height)
         self.hits = []
         self.text_cache = {}
         self.coastline = Coastline()
@@ -347,7 +354,14 @@ class RadarView:
         if self.clouds and cfg.get('cloud_overlay',True):
             detail = cloud_note
         self.label(detail,325,232,9,MUTED,147+extra)
-        self.button(self.buttons['range'],'RANGE  '+distance(cfg['radius_km'],cfg))
+        for radius in (50,100,200):
+            rect=self.buttons[('range',radius)]
+            self.button(rect,'')
+            if cfg['radius_km']==radius:
+                pygame.draw.rect(self.screen,self.color((32,92,45)),rect,border_radius=6)
+                pygame.draw.rect(self.screen,self.color(GREEN),rect,2,border_radius=6)
+            title=self.text_surface(distance(radius,cfg),10,INK)
+            self.screen.blit(title,title.get_rect(center=rect.center))
         self.button(self.buttons['location'],'SETUP')
         self.button(self.buttons['next'],'NEXT >')
         # Tiny attribution occupies an unused outer corner, outside the radar glass.
@@ -360,7 +374,7 @@ class RadarView:
     def hit(self, pos):
         for name,rect in self.buttons.items():
             if rect.collidepoint(pos):
-                return name, None
+                return name if isinstance(name,tuple) else (name, None)
         matches = [(math.hypot(rect.centerx-pos[0],rect.centery-pos[1]),ident) for rect,ident in self.hits if rect.collidepoint(pos)]
         if matches:
             return 'select', min(matches)[1]

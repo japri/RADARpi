@@ -45,7 +45,7 @@ with tempfile.TemporaryDirectory() as tmp, patch('radar.CONFIG',Path(tmp)/'confi
         assert saved['radius_km']==cfg['radius_km']
         view.draw(feed.cfg,[row],row,3,'','',100,2.8)
         pg.image.save(pixels(screen),f'details-{mode}.png')
-        assert view.hit(view.buttons['range'].center)==('range',None)
+        assert view.hit(view.buttons[('range',100)].center)==('range',100)
     ui.draw();pg.image.save(pixels(settings),'details-settings.png')
     previous_temperature=feed.cfg.get('temperature_unit','celsius')
     ui.tap(next(rect.center for rect,action in ui.buttons if action=='temperature'))

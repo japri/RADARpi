@@ -16,9 +16,8 @@ This adjusts radar colors, not the LCD backlight; Normal preserves the original
 palette. On HDMI panels, higher contrast also strengthens the cloud layer
 while preserving transparent areas. Cached colors keep full-screen filters out of the animation loop.
 
-Tap **RANGE** to select 50, 100 or 200 km directly from a radio-button menu.
-The current range is marked; selecting a range saves and returns to the radar.
-Imperial mode shows the equivalent miles.
+Three range buttons on the radar select **50, 100 or 200 km** directly.
+The current range is highlighted; Imperial mode shows equivalent miles.
 
 ## Choose your display version
 

@@ -328,7 +328,8 @@ def main():
                     continue
                 action, ident = view.hit(pos)
                 if action == 'range':
-                    setup.open('range')
+                    if ident != cfg['radius_km']:
+                        feed.change(radius_km=ident)
                 elif action == 'location':
                     setup.open()
                 elif action == 'next' and rows:
