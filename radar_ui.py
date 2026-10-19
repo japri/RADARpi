@@ -49,6 +49,7 @@ class RadarView:
             left=range_area.left+i*(width+gap)
             self.buttons[('range',radius)]=pygame.Rect(left,range_area.top,
                 range_area.right-left if i==2 else width,range_area.height)
+        self.lock_rect = None
         self.hits = []
         self.text_cache = {}
         self.coastline = Coastline()
@@ -210,7 +211,7 @@ class RadarView:
         label = self.text_surface(title, 12, INK)
         self.screen.blit(label, label.get_rect(center=rect.center))
 
-    def draw(self, cfg, rows, current, age, error, note, received, elapsed, display_status=None):
+    def draw(self, cfg, rows, current, age, error, note, received, elapsed, display_status=None, locked=False):
         self.set_contrast(cfg)
         cloud,cloud_note = self.clouds.snapshot(cfg) if self.clouds else (None,'CLOUDS OFF')
         token = (cloud['key'],cloud['timestamp'],self.contrast) if cloud else None
@@ -333,7 +334,7 @@ class RadarView:
             self.label(f'{current.get("t", "?")} {current.get("r", "")}',334,119,10,MUTED,127+extra)
             route = current.get('route_label') or ''
             route = route if ' > ' in route else '---------'
-            self.flaps.draw(self.screen,self.fonts[17],route,334,135,self.color(GREEN),'route',current.get('hex'),width=127+extra,clear_on_identity=True)
+            self.flaps.draw(self.screen,self.fonts[17],route,334,135,self.color(GREEN),'route',current.get('hex'),width=95+extra,clear_on_identity=True)
             self.label('REG: '+registration_country(current.get('hex')),334,155,9,MUTED,127+extra)
             altitude_text, altitude_unit = altitude(current.get('alt_baro'),cfg)
             self.label(altitude_text,334,168,19,INK,106+extra)
@@ -345,9 +346,20 @@ class RadarView:
             self.label(direction(current),334,212,10,MUTED,127+extra)
         else:
             self.flaps.clear()
-            self.label('ACQUIRING' if age is None else 'NO TARGETS',334,106,14,INK)
-            self.label('Waiting for' if age is None else 'No recent',334,142,12,MUTED)
-            self.label('live positions' if age is None else 'positions here',334,159,12,MUTED)
+            self.label('LOCKED TARGET' if locked else 'ACQUIRING' if age is None else 'NO TARGETS',334,106,14,INK)
+            self.label('Waiting for' if locked or age is None else 'No recent',334,142,12,MUTED)
+            self.label('aircraft...' if locked else 'live positions' if age is None else 'positions here',334,159,12,MUTED)
+        self.lock_rect = pygame.Rect(self.screen.get_width()-40,130,32,27) if current or locked else None
+        if self.lock_rect:
+            rect=self.lock_rect
+            color=self.color(GREEN if locked else MUTED)
+            pygame.draw.rect(self.screen,self.color((16,49,25)),rect,border_radius=4)
+            pygame.draw.rect(self.screen,color,rect,1,border_radius=4)
+            x,y=rect.center
+            pygame.draw.rect(self.screen,color,(x-6,y-1,12,10),border_radius=2)
+            pygame.draw.arc(self.screen,color,(x-5 if locked else x,y-8,10,13),0 if locked else .5,math.pi,2)
+            if locked:
+                pygame.draw.line(self.screen,(0,12,3),(x,y+2),(x,y+5),2)
         detail = error or (note if note.startswith('IP failed') else '') or (cloud_note if self.clouds and cfg.get('cloud_overlay',True) else 'MOTION EST. / 30s MAX')
         if status == 'REPLAY':
             detail = 'DATA PAUSED / TEST'
@@ -372,6 +384,8 @@ class RadarView:
         return status
 
     def hit(self, pos):
+        if self.lock_rect and self.lock_rect.collidepoint(pos):
+            return 'lock', None
         for name,rect in self.buttons.items():
             if rect.collidepoint(pos):
                 return name if isinstance(name,tuple) else (name, None)

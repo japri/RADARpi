@@ -19,6 +19,11 @@ while preserving transparent areas. Cached colors keep full-screen filters out o
 Three range buttons on the radar select **50, 100 or 200 km** directly.
 The current range is highlighted; Imperial mode shows equivalent miles.
 
+Tap the padlock beside the route to hold the selected aircraft. Tap it again
+to resume automatic cycling. Selecting another aircraft, including with NEXT,
+releases the lock.
+If the locked aircraft disappears, the panel waits for it; locks reset on restart.
+
 ## Choose your display version
 
 | Version | Location | Intended display |

@@ -12,6 +12,7 @@ import time
 import urllib.error
 import urllib.request
 from providers import provider_id, position_url, poll_seconds
+from aircraft_selection import resolve_selection
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / 'config.json'
@@ -264,6 +265,7 @@ def main():
             print('Touch unavailable:', error, flush=True)
     setup.can_calibrate = touch is not None
     selected, running, rows = None, True, []
+    locked_target = None
     clock = pygame.time.Clock()
     started = time.monotonic()
     last_cycle = started
@@ -316,6 +318,7 @@ def main():
                     setup.open()
                 elif event.key == pygame.K_n and rows:
                     ids = [a.get('hex') for a in rows]
+                    locked_target = None
                     selected = ids[(ids.index(selected)+1) % len(ids)] if selected in ids else ids[0]
                     last_cycle = now + 20
             if event.type in (pygame.MOUSEBUTTONDOWN, pygame.FINGERDOWN):
@@ -335,11 +338,16 @@ def main():
                         feed.change(radius_km=ident)
                 elif action == 'location':
                     setup.open()
+                elif action == 'lock':
+                    locked_target = None if locked_target else selected
+                    last_cycle = now
                 elif action == 'next' and rows:
+                    locked_target = None
                     ids = [a.get('hex') for a in rows]
                     selected = ids[(ids.index(selected) + 1) % len(ids)] if selected in ids else ids[0]
                     last_cycle = now + 20
                 elif action == 'select':
+                    locked_target = None
                     selected = ident
                     last_cycle = now + 20
         with feed.lock:
@@ -347,12 +355,11 @@ def main():
         age = now - received if received is not None else None
         filter_age = max(0, diagnostic_snapshot_time-received) if diagnostic_paused and received is not None else (age or 0)
         rows = [a for a in all_rows if a['position_age'] + filter_age <= cfg['stale_seconds']]
-        if now - last_cycle >= 12 and rows:
+        if locked_target is None and now - last_cycle >= 12 and rows:
             ids = [a.get('hex') for a in rows]
             selected = ids[(ids.index(selected) + 1) % len(ids)] if selected in ids else ids[0]
             last_cycle = now
-        current = next((a for a in rows if a.get('hex') == selected), rows[0] if rows else None)
-        selected = current.get('hex') if current else None
+        current, selected = resolve_selection(rows,selected,locked_target)
         if current:
             current = dict(current, route_label=routes.lookup(current))
         elapsed = args.frame_time if args.screenshot else now-started
@@ -362,13 +369,13 @@ def main():
             show_settings_canvas()
             status = 'SETUP'
         else:
-            status = view.draw(cfg, rows, current, age, error, note, received, elapsed, display_status='REPLAY' if diagnostic_paused else None)
+            status = view.draw(cfg, rows, current, age, error, note, received, elapsed, display_status='REPLAY' if diagnostic_paused else None, locked=locked_target is not None)
         diagnostic_request = ROOT/'.diagnostic-request'
         if diagnostic_request.exists():
             pygame.image.save(pixels(screen),str(ROOT/'diagnostic-ui.png'))
             viewport.render(screen, output)
             pygame.image.save(output,str(ROOT/'diagnostic-display.png'))
-            (ROOT/'diagnostic-status.json').write_text(json.dumps({'backend':pygame.display.get_driver(),'display_size':output.get_size(),'render_size':pixels(screen).get_size(),'render_density':density,'observed_fps':round((len(recent_presentations)-1)/(recent_presentations[-1]-recent_presentations[0]),1) if len(recent_presentations)>1 else None,'viewport':viewport.rect,'rotation':args.rotate_display,'setup_page':setup.page if setup.active else None,'wifi_connected':network.status['connected'],'touch_calibrated':bool(touch and touch.matrix),'status':status,'aircraft':len(rows),'feed_paused':diagnostic_paused,'cloud_status':view.clouds.snapshot(cfg)[1] if view.clouds else 'OFF','weather':view.weather.snapshot(cfg) if view.weather else None,'selected_callsign':current.get('flight','').strip() if current else None,'selected_route':current.get('route_label') if current else None}))
+            (ROOT/'diagnostic-status.json').write_text(json.dumps({'backend':pygame.display.get_driver(),'display_size':output.get_size(),'render_size':pixels(screen).get_size(),'render_density':density,'observed_fps':round((len(recent_presentations)-1)/(recent_presentations[-1]-recent_presentations[0]),1) if len(recent_presentations)>1 else None,'viewport':viewport.rect,'rotation':args.rotate_display,'setup_page':setup.page if setup.active else None,'wifi_connected':network.status['connected'],'touch_calibrated':bool(touch and touch.matrix),'status':status,'aircraft':len(rows),'feed_paused':diagnostic_paused,'cloud_status':view.clouds.snapshot(cfg)[1] if view.clouds else 'OFF','weather':view.weather.snapshot(cfg) if view.weather else None,'selected_callsign':current.get('flight','').strip() if current else None,'selected_route':current.get('route_label') if current else None,'locked_target':locked_target}))
             diagnostic_request.unlink(missing_ok=True)
         present_start = time.monotonic()
         present()
