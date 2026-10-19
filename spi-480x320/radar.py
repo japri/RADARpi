@@ -288,9 +288,7 @@ def main():
                     continue
                 action, ident = view.hit(pos)
                 if action == 'range':
-                    radii = [50, 100, 200]
-                    radius = radii[(radii.index(cfg['radius_km']) + 1) % 3] if cfg['radius_km'] in radii else 100
-                    feed.change(radius_km=radius)
+                    setup.open('range')
                 elif action == 'location':
                     setup.open()
                 elif action == 'next' and rows:

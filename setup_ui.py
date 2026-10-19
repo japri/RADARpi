@@ -3,6 +3,7 @@ import math
 from resolution_canvas import pygame
 from map_picker import MapPicker
 from ui_contrast import LEVELS, contrast_level
+from aircraft_details import distance
 from providers import PROVIDERS, provider_id, poll_seconds
 
 
@@ -63,7 +64,7 @@ class SetupUI:
             self.draw_keyboard()
             return
         label = self.view.label
-        title = {'menu':'RADAR SETTINGS','wifi':'WI-FI SETUP','location':'RADAR LOCATION','map':'CHOOSE A MAP PIN','data':'AIRCRAFT DATA','units':'DISPLAY / UNITS','contrast':'DISPLAY CONTRAST'}[self.page]
+        title = {'menu':'RADAR SETTINGS','wifi':'WI-FI SETUP','location':'RADAR LOCATION','map':'CHOOSE A MAP PIN','data':'AIRCRAFT DATA','units':'DISPLAY / UNITS','contrast':'DISPLAY CONTRAST','range':'RADAR RANGE'}[self.page]
         label(title,12,7,21)
         if self.page == 'menu':
             state = self.network.status
@@ -77,6 +78,16 @@ class SetupUI:
             self.button('Display / units',(245,208,225,48),'units')
             self.button('Clouds: '+('ON' if self.feed.cfg.get('cloud_overlay',True) else 'OFF'),(10,268,225,38),'clouds')
             self.button('Back to radar',(245,268,225,38),'close')
+        elif self.page == 'range':
+            label('Choose a range to return to the radar.',12,43,12)
+            for i,radius in enumerate((50,100,200)):
+                rect=pygame.Rect(8,76+i*57,464,49)
+                self.button(distance(radius,self.feed.cfg),rect,('range',radius))
+                centre=(rect.left+25,rect.centery)
+                pygame.draw.circle(self.screen,self.view.color((83,151,98)),centre,9,2)
+                if self.feed.cfg['radius_km']==radius:
+                    pygame.draw.circle(self.screen,self.view.color((183,255,180)),centre,5)
+            self.button('Back to radar',(8,280,464,32),'close')
         elif self.page == 'units':
             selected = self.feed.cfg.get('measurement_units','aviation')
             label('Altitude / speed / distance',12,39,12)
@@ -198,6 +209,10 @@ class SetupUI:
             self.active = False
         elif action in ('menu','wifi','location','data'):
             self.open(action)
+        elif isinstance(action,tuple) and action[0] == 'range':
+            if self.feed.cfg['radius_km'] != action[1]:
+                self.feed.change(radius_km=action[1])
+            self.active=False
         elif action == 'contrast':
             self.open('contrast')
         elif isinstance(action,tuple) and action[0] == 'contrast':
