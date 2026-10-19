@@ -118,8 +118,6 @@ class RadarView:
         pygame.gfxdraw.aacircle(base, *CENTRE, 143, (10, 50, 22))
         if self.cloud_image is not None:
             base.blit(self.cloud_image,(CENTRE[0]-RADIUS,CENTRE[1]-RADIUS))
-        if cfg is not None:
-            self.coastline.draw(base,cfg,CENTRE,RADIUS)
         # Glass reflection clipped inside the scope.
         glass = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
         for i in range(28):
@@ -145,8 +143,11 @@ class RadarView:
         for y in range(24, 299, 3):
             dy = y - CENTRE[1]
             dx = int(math.sqrt(max(0, RADIUS**2 - dy**2)))
-            if dx and not (self.cloud_image is not None and self.contrast):
+            if dx:
                 pygame.draw.line(base, self.color((3, 16, 6)), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
+        # Keep the shoreline continuous above clouds and decorative scan lines.
+        if cfg is not None:
+            self.coastline.draw(base,cfg,CENTRE,RADIUS,color=self.color((39,111,66)),outline=bool(self.cloud_image is not None and self.contrast))
         return base
 
     def build_sweep(self):

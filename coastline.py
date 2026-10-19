@@ -13,7 +13,7 @@ class Coastline:
         except (OSError,ValueError):
             self.chunks=[]
 
-    def draw(self, surface, cfg, centre, radius):
+    def draw(self, surface, cfg, centre, radius, color=(39,111,66), outline=False):
         lat,lon,km=cfg['latitude'],cfg['longitude'],cfg['radius_km']
         latspan=km/110+0.1
         lonspan=min(180,latspan/max(0.001,math.cos(math.radians(abs(lat)+latspan))) ) if abs(lat)+latspan<90 else 180
@@ -33,7 +33,9 @@ class Coastline:
                 bearing=math.atan2(math.sin(dl)*math.cos(b),math.cos(a)*math.sin(b)-math.sin(a)*math.cos(b)*math.cos(dl))
                 p=(centre[0]+math.sin(bearing)*distance/km*radius,centre[1]-math.cos(bearing)*distance/km*radius)
                 if previous and math.hypot(p[0]-previous[0],p[1]-previous[1])<radius*2:
-                    pygame.draw.aaline(layer,(39,111,66,255),previous,p)
+                    if outline:
+                        pygame.draw.line(layer,(0,12,3,255),previous,p,3)
+                    pygame.draw.aaline(layer,tuple(color)+(255,),previous,p)
                     count+=1
                 previous=p
         mask=pygame.Surface(surface.get_size(),pygame.SRCALPHA)
