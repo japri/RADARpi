@@ -139,12 +139,14 @@ class RadarView:
             pygame.draw.circle(base, self.color((0, 5, 1)), (x+1, y+1), 4)
             pygame.draw.circle(base, self.color((41, 67, 39)), (x, y), 3)
             pygame.draw.line(base, self.color((9, 22, 10)), (x-2, y), (x+2, y))
-        # Thin scan lines give the glass subtle texture.
+        # Translucent scan lines dim existing colors instead of erasing them.
+        scanlines = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
         for y in range(24, 299, 3):
             dy = y - CENTRE[1]
             dx = int(math.sqrt(max(0, RADIUS**2 - dy**2)))
             if dx:
-                pygame.draw.line(base, self.color((3, 16, 6)), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
+                pygame.draw.line(scanlines, (0,0,0,64), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
+        base.blit(scanlines, (0,0))
         # Keep the shoreline continuous above clouds and decorative scan lines.
         if cfg is not None:
             self.coastline.draw(base,cfg,CENTRE,RADIUS,color=self.color((39,111,66)),outline=bool(self.cloud_image is not None and self.contrast))
