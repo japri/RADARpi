@@ -231,9 +231,12 @@ def main():
     pygame.display.set_caption('Green Airspace Radar')
     pygame.mouse.set_visible(False)
     screen.fill((3,15,7))
-    splash_font = drawing.font.Font(None,34)
-    screen.blit(splash_font.render('FLIGHT RADAR',True,(100,255,140)),(140,125))
-    screen.blit(drawing.font.Font(None,22).render('Starting...',True,(75,155,100)),(200,168))
+    title = drawing.font.Font(None,34).render('FLIGHT RADAR',True,(100,255,140))
+    subtitle = drawing.font.Font(None,22).render('Starting...',True,(75,155,100))
+    gap = 12
+    top = (screen.get_height()-title.get_height()-gap-subtitle.get_height())//2
+    screen.blit(title,((screen.get_width()-title.get_width())//2,top))
+    screen.blit(subtitle,((screen.get_width()-subtitle.get_width())//2,top+title.get_height()+gap))
     present()
     view = RadarView(screen)
     if not args.screenshot and not args.benchmark_seconds:
