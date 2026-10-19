@@ -13,7 +13,7 @@ network requests.
 Use **SETUP → Display / units → Contrast** to choose Normal, Medium, High,
 or Maximum with a live preview. The setting saves independently on each Pi.
 This adjusts radar colors, not the LCD backlight; Normal preserves the original
-palette. On HDMI panels, higher contrast also strengthens the cloud layer
+palette. On both display versions, higher contrast also strengthens the cloud layer
 while preserving transparent areas. Cached colors keep full-screen filters out of the animation loop.
 
 Three range buttons on the radar select **50, 100 or 200 km** directly.

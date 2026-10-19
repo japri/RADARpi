@@ -10,7 +10,7 @@ from coastline import Coastline
 from flag_icons import FlagIcons
 from airline_icons import AirlineIcons
 from split_flap import SplitFlap
-from ui_contrast import contrast_level, contrast_color
+from ui_contrast import contrast_level, contrast_color, cloud_contrast
 from aircraft_details import altitude, speed, distance, direction, registration_country
 
 SIZE = (480, 320)
@@ -94,10 +94,11 @@ class RadarView:
         return self.text_cache[key]
 
     def build_base(self, cfg=None):
-        base = pygame.Surface(SIZE).convert()
+        base = pygame.Surface(self.screen.get_size()).convert()
+        base.fill(self.color((3,15,7)))
         for y in range(320):
             c = int(4 + 5 * (1 - y / 320))
-            pygame.draw.line(base, self.color((c // 2, c + 4, c // 2)), (0, y), (479, y))
+            pygame.draw.line(base, self.color((c // 2, c + 4, c // 2)), (0, y), (self.screen.get_width(), y))
         # Machined ring, inner shadow, and curved phosphor glass.
         pygame.draw.circle(base, self.color((0, 3, 0)), (160, 163), 158)
         for radius in range(156, 142, -1):
@@ -111,15 +112,11 @@ class RadarView:
         pygame.gfxdraw.aacircle(base, *CENTRE, 143, (10, 50, 22))
         if self.cloud_image is not None:
             base.blit(self.cloud_image,(CENTRE[0]-RADIUS,CENTRE[1]-RADIUS))
-        if cfg is not None:
-            self.coastline.draw(base,cfg,CENTRE,RADIUS)
         # Glass reflection clipped inside the scope.
-        glass = pygame.Surface(SIZE, pygame.SRCALPHA)
+        glass = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
         for i in range(28):
             pygame.draw.arc(glass, (134, 255, 155, max(0, 14 - i // 2)), (23+i, 23+i, 270-2*i, 270-2*i), .42, 2.9, 1)
         base.blit(glass, (0, 0))
-        for fraction in (.25, .5, .75, 1):
-            pygame.gfxdraw.aacircle(base, *CENTRE, int(RADIUS * fraction), (25, 70, 39))
         for degrees in range(0, 360, 30):
             angle = math.radians(degrees)
             pygame.draw.line(base, self.color((14, 49, 27)), CENTRE, polar(angle, RADIUS))
@@ -134,12 +131,23 @@ class RadarView:
             pygame.draw.circle(base, self.color((0, 5, 1)), (x+1, y+1), 4)
             pygame.draw.circle(base, self.color((41, 67, 39)), (x, y), 3)
             pygame.draw.line(base, self.color((9, 22, 10)), (x-2, y), (x+2, y))
-        # Thin scan lines give the glass subtle texture.
+        # Translucent scan lines dim existing colors instead of erasing them.
+        scanlines = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
         for y in range(24, 299, 3):
             dy = y - CENTRE[1]
             dx = int(math.sqrt(max(0, RADIUS**2 - dy**2)))
             if dx:
-                pygame.draw.line(base, self.color((3, 16, 6)), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
+                pygame.draw.line(scanlines, (0,0,0,64), (CENTRE[0]-dx, y), (CENTRE[0]+dx, y))
+        base.blit(scanlines, (0,0))
+        # Distance rings stay continuous and readable over cloud shading.
+        for fraction in (.25, .5, .75, 1):
+            radius = int(RADIUS * fraction)
+            if self.cloud_image is not None:
+                pygame.draw.circle(base, (0,12,3), CENTRE, radius, 2)
+            pygame.draw.circle(base, self.color((40,110,60)), CENTRE, radius, 1)
+        # Keep the shoreline continuous above clouds and decorative scan lines.
+        if cfg is not None:
+            self.coastline.draw(base,cfg,CENTRE,RADIUS,color=self.color((39,111,66)),outline=bool(self.cloud_image is not None and self.contrast))
         return base
 
     def build_sweep(self):
@@ -192,9 +200,9 @@ class RadarView:
     def draw(self, cfg, rows, current, age, error, note, received, elapsed, display_status=None):
         self.set_contrast(cfg)
         cloud,cloud_note = self.clouds.snapshot(cfg) if self.clouds else (None,'CLOUDS OFF')
-        token = (cloud['key'],cloud['timestamp']) if cloud else None
+        token = (cloud['key'],cloud['timestamp'],self.contrast) if cloud else None
         if token != self.cloud_token:
-            self.cloud_image = pygame.image.frombytes(cloud['rgba'],(280,280),'RGBA') if cloud else None
+            self.cloud_image = pygame.image.frombytes(cloud_contrast(cloud['rgba'],self.contrast),(280,280),'RGBA') if cloud else None
             self.cloud_token = token
         map_key = (cfg['latitude'],cfg['longitude'],cfg['radius_km'],token)
         if self.map_key != map_key:
@@ -205,7 +213,7 @@ class RadarView:
         sweep = self.sweep_frames[round(sweep_angle/2.5) % len(self.sweep_frames)]
         self.screen.blit(sweep, sweep.get_rect(center=CENTRE))
         for fraction in (.25,.5,.75):
-            self.label(distance(cfg['radius_km']*fraction,cfg,with_unit=False), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, DIM)
+            self.label(distance(cfg['radius_km']*fraction,cfg,with_unit=False), CENTRE[0]+4, CENTRE[1]-int(RADIUS*fraction)+2, 9, (65,150,85) if self.cloud_image is not None else DIM)
         pygame.draw.circle(self.screen, self.color((58, 157, 76)), CENTRE, 5, 1)
         pygame.draw.circle(self.screen, INK, CENTRE, 2)
 
