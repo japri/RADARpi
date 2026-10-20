@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Cached UI palette adjustments; no full-screen processing in the frame loop."""
 from functools import lru_cache
 LEVELS = ('Normal','Medium','High','Maximum')

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Bounded display-only prediction with continuous, forward-only corrections."""
 import math
 import time

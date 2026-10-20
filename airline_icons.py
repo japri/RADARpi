@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Optional offline logos inferred from an ICAO airline callsign prefix."""
 import io
 from pathlib import Path

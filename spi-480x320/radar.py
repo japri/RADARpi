@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Small internet flight radar. Python stdlib + system pygame only."""
 import argparse
 import email.utils

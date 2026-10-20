@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Background Open-Meteo current model weather for the selected pin."""
 import json
 import math

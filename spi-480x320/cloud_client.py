@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Cached, background infrared imagery from public NASA/EUMETSAT WMS services."""
 import base64
 import datetime as dt

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """On-demand OpenStreetMap tiles for a small native pin picker."""
 import math
 from pathlib import Path

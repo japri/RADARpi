@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 import unittest
 from unittest.mock import patch
 import urllib.error

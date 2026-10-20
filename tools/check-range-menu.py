@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Offline layout + persistent units check; run with application folder as cwd."""
 import os
 os.environ['SDL_VIDEODRIVER']='dummy'

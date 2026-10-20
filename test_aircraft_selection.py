@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 import unittest
 from aircraft_selection import resolve_selection
 class SelectionTests(unittest.TestCase):

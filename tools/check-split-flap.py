@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Offline animation frames and rendering checks; run from application directory."""
 import os
 os.environ['SDL_VIDEODRIVER']='dummy'

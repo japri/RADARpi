@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 import unittest,time,threading
 from cloud_client import CloudClient,select_source,latest_time,bounds
 class CloudsTests(unittest.TestCase):

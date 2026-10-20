@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Compare isolated flap rendering with a saved baseline on actual Pi hardware."""
 import os,sys,time,statistics,importlib.util
 from pathlib import Path

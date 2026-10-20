@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Root-owned, narrowly scoped NetworkManager helper. JSON in/out; no secrets logged."""
 import json
 import os

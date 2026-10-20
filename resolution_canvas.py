@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Logical UI coordinates backed by native-resolution pixels.
 
 This facade is used only by drawing modules; SDL/events keep real pygame.

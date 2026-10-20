@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Offline registration-country flags, cached at the display's pixel density."""
 import io
 import json

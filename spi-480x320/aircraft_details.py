@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Display-only conversions and offline ICAO registration-state lookup."""
 import csv
 import math

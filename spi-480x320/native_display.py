@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Synchronous RGB565 DRM output for the SPI LCD, with bounded damage regions.
 
 Uses the existing kernel driver/libdrm; does not change device-tree or boot files.

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Green phosphor scope for a 480x320 SPI display. No extra dependencies."""
 import math
 from pathlib import Path

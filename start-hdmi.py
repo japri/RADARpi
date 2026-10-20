@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Launch only on the confirmed HDMI/KMS display; no boot or overlay edits."""
 import os
 from pathlib import Path

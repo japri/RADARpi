@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Render privacy-safe README examples offline; run from either app directory.
 No personal configuration, device identifiers, cached imagery or live feed is read.
 """

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Selection retains a locked identity across temporary feed gaps."""
 def resolve_selection(rows,selected,locked_target):
     target=locked_target if locked_target is not None else selected

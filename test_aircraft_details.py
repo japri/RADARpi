@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 import unittest
 from aircraft_details import altitude, speed, distance, direction, registration_country, country_ranges
 

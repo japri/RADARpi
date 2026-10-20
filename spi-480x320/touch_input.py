@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Read the ADS7846 legacy evdev stream and calibrate directly to UI pixels."""
 import json
 import os

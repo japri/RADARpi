@@ -201,8 +201,25 @@ deployment scripts, backups and live diagnostic images are excluded. Only the
 labelled sample-data screenshots in `docs/images/` are published.
 
 
-## License status
+## License
 
-A license for the application code has not yet been selected. Third-party data,
-images and assets retain the terms listed in their source/attribution files;
-this repository does not claim ownership of airline trademarks.
+RADARpi application code is licensed under the **GNU General Public License
+version 3 only** (`GPL-3.0-only`). Copyright (C) 2026 japri.
+See [LICENSE](LICENSE) for the complete terms. The standalone SPI directory
+also includes a copy of the license.
+
+You may use, modify and redistribute the code, including commercially, under
+GPLv3. When distributing covered software, comply with its license-notice and
+corresponding-source requirements. The software is provided without warranty;
+see the license for details.
+
+Third-party assets retain their own terms; this GPL notice does not relicense
+those assets or grant rights to airline trademarks:
+
+- Registration data: [source](COUNTRY-DATA-SOURCE.txt) and [CC0 license](COUNTRY-DATA-LICENSE.txt).
+- Coastlines: [Natural Earth attribution](COASTLINE-SOURCE.txt).
+- Flags: [source notes](FLAGS-SOURCE.txt).
+- Airline logos: [source and trademark notes](AIRLINE-LOGOS-SOURCE.txt), with upstream notices in the archive.
+- External services: [aircraft](FREE-ADSB-PROVIDERS.txt), [cloud imagery](CLOUD-SOURCES.txt), and [weather](WEATHER-SOURCE.txt) terms still apply.
+
+Enclosure design files are not included and are not licensed by this code notice.

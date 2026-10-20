@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 import unittest,time,threading
 from unittest.mock import patch
 from weather_client import parse,description,WeatherClient

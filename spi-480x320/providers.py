@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Verified no-key nearby-aircraft APIs. Manual choice, never rotate around limits."""
 import math
 

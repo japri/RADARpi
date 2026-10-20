@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Mechanical, frame-driven split-flap transitions; no sleeps, threads or network."""
 from collections import OrderedDict
 from dataclasses import dataclass

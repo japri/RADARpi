@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Cached route metadata; network requests never block the display or position feed."""
 import email.utils
 import json

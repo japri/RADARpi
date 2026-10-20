@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 japri
 """Offline Natural Earth coastlines, projected only when the radar centre changes."""
 import gzip
 import json
