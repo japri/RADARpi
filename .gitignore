@@ -14,3 +14,15 @@ diagnostic-*
 .env
 .env.*
 backups/
+
+# Local device access and deployment material
+remote*.py
+deploy-*.py
+HANDOFF*.txt
+INSTALL-STATUS.txt
+backup-*/
+id_rsa*
+id_ed25519*
+*.pem
+*.key
+github-screenshots/

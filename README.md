@@ -1,8 +1,43 @@
 # RADARpi
 
-A green radar display for Raspberry Pi: live aircraft, callsigns and routes,
+A green radar display built and tested on **Raspberry Pi 3 Model B (Pi 3B)**: live aircraft, callsigns and routes,
 offline coastlines, infrared satellite imagery, and local weather.
-Built with Python and pygame; no browser required.
+Built with Python and pygame; no browser or ADS-B receiver is required.
+Aircraft positions come from internet data providers.
+
+## Screenshots
+
+These screenshots were rendered on Raspberry Pi 3B hardware using **illustrative
+sample data** and a generic public city-centre location. Aircraft positions,
+weather and cloud shapes are demonstrations, not live observations. No personal
+configuration, Wi-Fi information or device addresses are included.
+
+**5-inch HDMI display — 800 × 480**
+
+![RADARpi demo on an 800 by 480 HDMI display](docs/images/radar-800x480-demo.png)
+
+**3.5-inch SPI display — 480 × 320**
+
+![RADARpi demo on a 480 by 320 SPI display](docs/images/radar-480x320-demo.png)
+
+## Tested hardware
+
+Both physical builds use a **Raspberry Pi 3B** with microSD storage, Wi-Fi and
+an appropriate power supply.
+
+| Build | Display | Touch |
+| --- | --- | --- |
+| 5-inch | HDMI, 800 × 480 | GPIO XPT2046/ADS7846-compatible resistive touch |
+| 3.5-inch | SPI ILI9486, 480 × 320 | ADS7846-compatible resistive touch |
+
+Display drivers and calibration depend on the specific LCD. Screen size alone
+does not identify the controller. Other resolutions have software layout checks;
+they are not a claim that every panel has been physically tested.
+
+A custom 3D-printed desktop enclosure has also been built. Its design files are
+not included in this repository yet.
+
+## Features
 
 Callsigns and known routes use a Solari-style split-flap transition when
 they change. Each changing position cycles through 8–11 flaps and settles within
@@ -162,4 +197,12 @@ CPU; the SPI version has its own bandwidth limits.
 
 Only application code, sample settings and source attribution are included.
 Personal configurations, credentials, device addresses, calibration files,
-deployment scripts, backups and diagnostic images are excluded.
+deployment scripts, backups and live diagnostic images are excluded. Only the
+labelled sample-data screenshots in `docs/images/` are published.
+
+
+## License status
+
+A license for the application code has not yet been selected. Third-party data,
+images and assets retain the terms listed in their source/attribution files;
+this repository does not claim ownership of airline trademarks.
